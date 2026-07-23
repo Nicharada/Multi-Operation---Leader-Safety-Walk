@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leader Safety Walk Checklist</title>
+<style>
+  :root{
+    --navy:#0b2a4a;
+    --navy2:#13395f;
+    --orange:#f2a900;
+    --orange2:#e08e2b;
+    --green:#2e9e5b;
+    --red:#d9483d;
+    --gray-bg:#f3f4f6;
+    --card:#ffffff;
+    --border:#e2e5ea;
+    --text:#22262b;
+    --muted:#6b7280;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Segoe UI', 'Tahoma', 'Sarabun', sans-serif;
+    background:var(--gray-bg);
+    color:var(--text);
+    padding-bottom:60px;
+  }
+  header{
+    background:linear-gradient(135deg,var(--navy),var(--navy2));
+    color:#fff;
+    padding:22px 18px 60px 18px;
+    position:relative;
+    overflow:hidden;
+  }
+  header::after{
+    content:"";
+    position:absolute;
+    right:-40px;
+    top:-40px;
+    width:180px;
+    height:180px;
+    background:rgba(242,169,0,0.15);
+    border-radius:50%;
+  }
+  header h1{
+    margin:0;
+    font-size:1.4rem;
+    font-weight:700;
+    letter-spacing:0.3px;
+  }
+  header p{
+    margin:6px 0 0 0;
+    font-size:0.85rem;
+    opacity:0.85;
+  }
+  .tabs{
+    display:flex;
+    max-width:720px;
+    margin:-40px auto 0 auto;
+    background:var(--card);
+    border-radius:14px;
+    box-shadow:0 6px 20px rgba(0,0,0,0.12);
+    overflow:hidden;
+    position:relative;
+    z-index:2;
+  }
+  .tab-btn{
+    flex:1;
+    padding:14px 8px;
+    text-align:center;
+    font-size:0.85rem;
+    font-weight:600;
+    color:var(--muted);
+    background:none;
+    border:none;
+    cursor:pointer;
+    border-bottom:3px solid transparent;
+    transition:all 0.15s;
+  }
+  .tab-btn.active{
+    color:var(--navy);
+    border-bottom:3px solid var(--orange);
+    background:#fffaf0;
+  }
+  main{
+    max-width:720px;
+    margin:20px auto;
+    padding:0 16px;
+  }
+  .card{
+    background:var(--card);
+    border-radius:12px;
+    padding:18px;
+    margin-bottom:16px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.06);
+    border:1px solid var(--border);
+  }
+  .card h2{
+    font-size:1rem;
+    margin:0 0 12px 0;
+    color:var(--navy);
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  label{
+    display:block;
+    font-size:0.8rem;
+    font-weight:600;
+    color:var(--muted);
+    margin-bottom:4px;
+  }
+  input[type=text], input[type=date], select, textarea{
+    width:100%;
+    padding:10px 12px;
+    border:1px solid var(--border);
+    border-radius:8px;
+    font-size:0.95rem;
+    margin-bottom:12px;
+    font-family:inherit;
+    background:#fff;
+  }
+  textarea{resize:vertical; min-height:50px;}
+  .form-row{display:flex; gap:10px;}
+  .form-row > div{flex:1;}
+
+  .behavior-item{
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:12px 14px;
+    margin-bottom:10px;
+    background:#fafbfc;
+  }
+  .behavior-item.safe{border-color:#bfe6cc; background:#f2fbf5;}
+  .behavior-item.unsafe{border-color:#f6c9c5; background:#fef4f3;}
+  .behavior-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:8px;
+  }
+  .behavior-name{
+    font-weight:600;
+    font-size:0.95rem;
+  }
+  .na-toggle{
+    font-size:0.72rem;
+    color:var(--muted);
+    cursor:pointer;
+    user-select:none;
+    text-decoration:underline;
+  }
+  .btn-group{
+    display:flex;
+    gap:8px;
+  }
+  .choice-btn{
+    flex:1;
+    padding:9px 0;
+    border-radius:8px;
+    border:1.5px solid var(--border);
+    background:#fff;
+    font-weight:600;
+    font-size:0.85rem;
+    cursor:pointer;
+    color:var(--muted);
+    transition:all 0.12s;
+  }
+  .choice-btn.safe-sel{
+    background:var(--green);
+    border-color:var(--green);
+    color:#fff;
+  }
+  .choice-btn.unsafe-sel{
+    background:var(--red);
+    border-color:var(--red);
+    color:#fff;
+  }
+  .note-input{
+    margin-top:8px;
+    margin-bottom:0;
+    font-size:0.85rem;
+    padding:7px 10px;
+  }
+
+  .submit-btn{
+    width:100%;
+    padding:14px;
+    background:linear-gradient(135deg,var(--orange2),var(--orange));
+    color:#fff;
+    border:none;
+    border-radius:10px;
+    font-size:1rem;
+    font-weight:700;
+    cursor:pointer;
+    box-shadow:0 4px 12px rgba(224,142,43,0.35);
+  }
+  .submit-btn:active{transform:scale(0.98);}
+  .submit-btn:disabled{
+    background:#d1d5db;
+    box-shadow:none;
+    cursor:not-allowed;
+  }
+
+  .badge{
+    display:inline-block;
+    padding:2px 8px;
+    border-radius:12px;
+    font-size:0.7rem;
+    font-weight:700;
+  }
+  .badge-green{background:#e3f7e9; color:var(--green);}
+  .badge-red{background:#fde9e7; color:var(--red);}
+  .badge-orange{background:#fff2dc; color:var(--orange2);}
+
+  /* Dashboard */
+  .stat-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:10px;
+    margin-bottom:14px;
+  }
+  .stat-box{
+    background:#fff;
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:12px;
+    text-align:center;
+  }
+  .stat-box .num{
+    font-size:1.5rem;
+    font-weight:800;
+    color:var(--navy);
+  }
+  .stat-box .lbl{
+    font-size:0.72rem;
+    color:var(--muted);
+    margin-top:2px;
+  }
+  .bar-row{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-bottom:10px;
+  }
+  .bar-label{
+    width:150px;
+    font-size:0.82rem;
+    flex-shrink:0;
+  }
+  .bar-track{
+    flex:1;
+    height:14px;
+    background:#eef0f3;
+    border-radius:7px;
+    overflow:hidden;
+    position:relative;
+  }
+  .bar-fill{
+    height:100%;
+    border-radius:7px;
+    background:linear-gradient(90deg,#2e9e5b,#57c583);
+  }
+  .bar-pct{
+    width:44px;
+    text-align:right;
+    font-size:0.8rem;
+    font-weight:700;
+    flex-shrink:0;
+  }
+  .lowest-callout{
+    background:#fff2dc;
+    border:1px solid #f5d99a;
+    border-radius:10px;
+    padding:10px 14px;
+    font-size:0.85rem;
+    color:#8a5a00;
+    margin-top:6px;
+  }
+
+  .history-item{
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:12px 14px;
+    margin-bottom:10px;
+    background:#fff;
+  }
+  .history-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-size:0.85rem;
+    margin-bottom:6px;
+  }
+  .history-top .name{font-weight:700; color:var(--navy);}
+  .history-detail{
+    font-size:0.78rem;
+    color:var(--muted);
+    display:none;
+    margin-top:8px;
+    border-top:1px dashed var(--border);
+    padding-top:8px;
+  }
+  .history-item.open .history-detail{display:block;}
+  .history-behavior-row{
+    display:flex;
+    justify-content:space-between;
+    padding:3px 0;
+  }
+  .empty-state{
+    text-align:center;
+    color:var(--muted);
+    padding:30px 10px;
+    font-size:0.9rem;
+  }
+  .toolbar{
+    display:flex;
+    gap:8px;
+    margin-bottom:12px;
+  }
+  .toolbar button{
+    flex:1;
+    padding:10px;
+    border-radius:8px;
+    border:1px solid var(--border);
+    background:#fff;
+    font-size:0.82rem;
+    font-weight:600;
+    color:var(--navy);
+    cursor:pointer;
+  }
+  .toolbar button:hover{background:#f7f8fa;}
+  .offline-pill{
+    position:fixed;
+    bottom:14px;
+    left:50%;
+    transform:translateX(-50%);
+    background:rgba(11,42,74,0.9);
+    color:#fff;
+    padding:6px 14px;
+    border-radius:20px;
+    font-size:0.72rem;
+    z-index:10;
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .dot{width:7px; height:7px; border-radius:50%; background:#2e9e5b;}
+  .manage-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:8px 10px;
+    border:1px solid var(--border);
+    border-radius:8px;
+    margin-top:8px;
+    font-size:0.85rem;
+    background:#fafbfc;
+  }
+  .manage-row button{
+    background:none;
+    border:none;
+    color:var(--red);
+    font-size:0.78rem;
+    cursor:pointer;
+    text-decoration:underline;
+    flex-shrink:0;
+    margin-left:10px;
+  }
+  .hint-text{
+    font-size:0.75rem;
+    color:var(--muted);
+    margin-top:6px;
+  }
+  .hidden{display:none !important;}
+  .filter-select{margin-bottom:14px;}
+  .confirm-banner{
+    background:#e3f7e9;
+    border:1px solid #bfe6cc;
+    color:#1c7a42;
+    padding:10px 14px;
+    border-radius:8px;
+    font-size:0.85rem;
+    margin-bottom:14px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+  }
+  @media (max-width:420px){
+    .stat-grid{grid-template-columns:1fr 1fr;}
+    .bar-label{width:110px; font-size:0.74rem;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🦺 Leader Safety Walk Checklist</h1>
+  <p>Warehouse Safety Behavior Change — บันทึกผลการเดินตรวจความปลอดภัยประจำวัน</p>
+</header>
+
+<div class="tabs">
+  <button class="tab-btn active" data-tab="walk">📋 บันทึกวันนี้</button>
+  <button class="tab-btn" data-tab="dashboard">📊 สรุปผล</button>
+  <button class="tab-btn" data-tab="history">🕒 ประวัติ</button>
+</div>
+
+<main>
+
+  <!-- TAB: WALK FORM -->
+  <section id="tab-walk">
+    <div class="card" id="sync-settings-card">
+      <h2>⚙️ ตั้งค่าการซิงค์ข้อมูล (Google Sheet)</h2>
+      <label>Web App URL (จาก Google Apps Script)</label>
+      <input type="text" id="f-webapp-url" placeholder="https://script.google.com/macros/s/xxxx/exec">
+      <button class="submit-btn" id="save-url-btn" style="background:var(--navy2); box-shadow:none;">บันทึก URL</button>
+      <div id="sync-status" style="font-size:0.78rem; color:var(--muted); margin-top:8px;"></div>
+    </div>
+    <div class="card">
+      <h2>ข้อมูลการเดินตรวจ</h2>
+      <div class="form-row">
+        <div>
+          <label>วันที่ (Date)</label>
+          <input type="date" id="f-date">
+        </div>
+        <div>
+          <label>เวลา (Time)</label>
+          <input type="text" id="f-time" placeholder="เช่น 09:15">
+        </div>
+      </div>
+      <div class="form-row">
+        <div>
+          <label>ผู้ตรวจ (Inspector / Supervisor)</label>
+          <input type="text" id="f-inspector" placeholder="ชื่อ-นามสกุล">
+        </div>
+        <div>
+          <label>พื้นที่ / โซน (Area / Zone)</label>
+          <input type="text" id="f-area" placeholder="เช่น Zone A, Dock 3">
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>🧩 จัดการหัวข้อตรวจ (เพิ่ม/ลบได้)</h2>
+      <div class="form-row">
+        <div style="flex:3;">
+          <input type="text" id="new-behavior-input" placeholder="เพิ่มหัวข้อใหม่ เช่น Wear Ear Protection (ใส่ที่ครอบหู)">
+        </div>
+        <div style="flex:1;">
+          <button class="submit-btn" id="add-behavior-btn" style="background:var(--navy2); box-shadow:none; padding:10px;">+ เพิ่ม</button>
+        </div>
+      </div>
+      <div id="manage-behavior-list"></div>
+    </div>
+
+    <div class="card">
+      <h2>รายการพฤติกรรม (Behavior Checklist)</h2>
+      <div id="behavior-list"></div>
+    </div>
+
+    <div class="card">
+      <label>หมายเหตุ / ข้อเสนอแนะเพิ่มเติม</label>
+      <textarea id="f-notes" placeholder="สังเกตเห็นอะไรเพิ่มเติม เช่น เส้นทางอันตราย จุดที่ต้องปรับปรุง..."></textarea>
+      <button class="submit-btn" id="submit-btn">💾 บันทึกผลการเดินตรวจ</button>
+    </div>
+  </section>
+
+  <!-- TAB: DASHBOARD -->
+  <section id="tab-dashboard" class="hidden">
+    <div class="card">
+      <h2>📊 ภาพรวม Safe Behavior Rate</h2>
+      <div class="stat-grid">
+        <div class="stat-box">
+          <div class="num" id="stat-total-walks">0</div>
+          <div class="lbl">จำนวนการเดินตรวจ</div>
+        </div>
+        <div class="stat-box">
+          <div class="num" id="stat-safe-rate">–</div>
+          <div class="lbl">Safe Behavior Rate เฉลี่ย</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>อัตราความปลอดภัยตามหัวข้อ (Compliance Rate by Behavior)</h2>
+      <div id="bars-container"></div>
+      <div id="lowest-callout-box"></div>
+    </div>
+  </section>
+
+  <!-- TAB: HISTORY -->
+  <section id="tab-history" class="hidden">
+    <div class="card">
+      <h2>🕒 ประวัติการเดินตรวจ</h2>
+      <div class="toolbar">
+        <button id="export-csv">⬇️ Export CSV</button>
+        <button id="sync-now">🔄 Sync ที่ค้างอยู่</button>
+        <button id="clear-all">🗑️ ล้างข้อมูลทั้งหมด</button>
+      </div>
+      <div id="history-list"></div>
+    </div>
+  </section>
+
+</main>
+
+<div class="offline-pill"><span class="dot"></span> ทำงานแบบออฟไลน์ — ข้อมูลถูกบันทึกไว้ในเครื่องนี้เท่านั้น</div>
+
+<script>
+(function(){
+  const DEFAULT_BEHAVIORS = [
+    {key:"ppe", name:"Wear PPE (สวมใส่อุปกรณ์ป้องกันภัยส่วนบุคคล)"},
+    {key:"seatbelt", name:"Seat Belt (คาดเข็มขัดนิรภัย)"},
+    {key:"junction", name:"Stop at Junction (หยุดที่ทางแยก)"},
+    {key:"horn", name:"Horn at Blind Corner (บีบแตรที่มุมอับ)"},
+    {key:"speed", name:"Speed Limit (ปฏิบัติตามความเร็วที่กำหนด)"},
+    {key:"phone", name:"Stop before using a mobile phone (หยุดก่อนใช้โทรศัพท์มือถือ)"}
+  ];
+  const BEHAVIORS_KEY = "ych_safety_walk_behaviors_v1";
+
+  function loadBehaviors(){
+    try{
+      const raw = localStorage.getItem(BEHAVIORS_KEY);
+      return raw ? JSON.parse(raw) : DEFAULT_BEHAVIORS.slice();
+    }catch(e){ return DEFAULT_BEHAVIORS.slice(); }
+  }
+  function saveBehaviors(list){
+    localStorage.setItem(BEHAVIORS_KEY, JSON.stringify(list));
+  }
+  function slugify(text){
+    return "custom_" + text.toLowerCase().replace(/[^a-z0-9ก-๙]+/g,"_").replace(/^_+|_+$/g,"").slice(0,30) + "_" + Date.now().toString().slice(-5);
+  }
+
+  let BEHAVIORS = loadBehaviors();
+
+  function renderManageBehaviors(){
+    const el = document.getElementById("manage-behavior-list");
+    el.innerHTML = "";
+    BEHAVIORS.forEach(b=>{
+      const row = document.createElement("div");
+      row.className = "manage-row";
+      row.innerHTML = `<span>${b.name}</span><button data-key="${b.key}">ลบ</button>`;
+      el.appendChild(row);
+    });
+    const hint = document.createElement("div");
+    hint.className = "hint-text";
+    hint.textContent = "หัวข้อที่เพิ่ม/ลบจะมีผลกับการบันทึกครั้งถัดไป ประวัติเดิมจะไม่เปลี่ยนแปลง";
+    el.appendChild(hint);
+
+    el.querySelectorAll("button[data-key]").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        if(BEHAVIORS.length <= 1){
+          alert("ต้องมีหัวข้อตรวจอย่างน้อย 1 รายการ");
+          return;
+        }
+        if(confirm("ต้องการลบหัวข้อนี้หรือไม่?")){
+          BEHAVIORS = BEHAVIORS.filter(x=>x.key !== btn.dataset.key);
+          saveBehaviors(BEHAVIORS);
+          renderManageBehaviors();
+          buildBehaviorForm();
+          checkSubmitEnabled();
+        }
+      });
+    });
+  }
+
+  document.getElementById("add-behavior-btn").addEventListener("click", ()=>{
+    const input = document.getElementById("new-behavior-input");
+    const val = input.value.trim();
+    if(!val){ return; }
+    BEHAVIORS.push({key: slugify(val), name: val});
+    saveBehaviors(BEHAVIORS);
+    input.value = "";
+    renderManageBehaviors();
+    buildBehaviorForm();
+    checkSubmitEnabled();
+  });
+
+  const STORAGE_KEY = "ych_safety_walk_records_v1";
+  const URL_KEY = "ych_safety_walk_webapp_url";
+  const PENDING_KEY = "ych_safety_walk_pending_sync";
+
+  function loadRecords(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : [];
+    }catch(e){ return []; }
+  }
+  function saveRecords(records){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+  }
+
+  function getWebAppUrl(){ return localStorage.getItem(URL_KEY) || ""; }
+  function setWebAppUrl(url){ localStorage.setItem(URL_KEY, url); }
+
+  function loadPending(){
+    try{
+      const raw = localStorage.getItem(PENDING_KEY);
+      return raw ? JSON.parse(raw) : [];
+    }catch(e){ return []; }
+  }
+  function savePending(list){
+    localStorage.setItem(PENDING_KEY, JSON.stringify(list));
+  }
+
+  function updateSyncStatusText(){
+    const el = document.getElementById("sync-status");
+    if(!el) return;
+    const url = getWebAppUrl();
+    const pending = loadPending();
+    if(!url){
+      el.textContent = "ยังไม่ได้ตั้งค่า URL — ข้อมูลจะถูกเก็บไว้ในเครื่องนี้เท่านั้น";
+    } else if(pending.length > 0){
+      el.textContent = `เชื่อมต่อ Google Sheet แล้ว · มีข้อมูลค้างส่ง ${pending.length} รายการ`;
+    } else {
+      el.textContent = "เชื่อมต่อ Google Sheet แล้ว · ข้อมูลล่าสุด sync เรียบร้อย";
+    }
+  }
+
+  document.getElementById("f-webapp-url").value = getWebAppUrl();
+  document.getElementById("save-url-btn").addEventListener("click", ()=>{
+    const val = document.getElementById("f-webapp-url").value.trim();
+    setWebAppUrl(val);
+    updateSyncStatusText();
+    alert(val ? "บันทึก URL เรียบร้อยแล้ว" : "ลบ URL แล้ว (จะไม่ซิงค์ข้อมูลออนไลน์)");
+  });
+
+  function sendToSheet(record){
+    const url = getWebAppUrl();
+    if(!url) return Promise.resolve(false);
+    return fetch(url, {
+      method: "POST",
+      mode: "no-cors",
+      headers: {"Content-Type":"text/plain"},
+      body: JSON.stringify(record)
+    }).then(()=> true).catch(()=> false);
+  }
+
+  function queueForSync(record){
+    const pending = loadPending();
+    pending.push(record);
+    savePending(pending);
+  }
+
+  function flushPending(){
+    const url = getWebAppUrl();
+    if(!url) return;
+    let pending = loadPending();
+    if(pending.length === 0){ updateSyncStatusText(); return; }
+    const remaining = [];
+    let chain = Promise.resolve();
+    pending.forEach(rec=>{
+      chain = chain.then(()=> sendToSheet(rec)).then(ok=>{
+        if(!ok) remaining.push(rec);
+      });
+    });
+    chain.then(()=>{
+      savePending(remaining);
+      updateSyncStatusText();
+      renderHistory();
+    });
+  }
+
+  document.getElementById("sync-now").addEventListener("click", flushPending);
+  window.addEventListener("online", flushPending);
+
+  let records = loadRecords();
+  let currentSelections = {}; // key -> 'safe'|'unsafe'|null
+  let currentNotes = {};
+
+  // ---------- Tabs ----------
+  const tabButtons = document.querySelectorAll(".tab-btn");
+  const tabSections = {
+    walk: document.getElementById("tab-walk"),
+    dashboard: document.getElementById("tab-dashboard"),
+    history: document.getElementById("tab-history")
+  };
+  tabButtons.forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      tabButtons.forEach(b=>b.classList.remove("active"));
+      btn.classList.add("active");
+      Object.values(tabSections).forEach(s=>s.classList.add("hidden"));
+      tabSections[btn.dataset.tab].classList.remove("hidden");
+      if(btn.dataset.tab === "dashboard") renderDashboard();
+      if(btn.dataset.tab === "history") renderHistory();
+    });
+  });
+
+  // ---------- Build checklist form ----------
+  const behaviorListEl = document.getElementById("behavior-list");
+  function buildBehaviorForm(){
+    behaviorListEl.innerHTML = "";
+    BEHAVIORS.forEach(b=>{
+      currentSelections[b.key] = null;
+      currentNotes[b.key] = "";
+      const item = document.createElement("div");
+      item.className = "behavior-item";
+      item.id = "item-" + b.key;
+      item.innerHTML = `
+        <div class="behavior-top">
+          <div class="behavior-name">${b.name}</div>
+        </div>
+        <div class="btn-group">
+          <button type="button" class="choice-btn" data-key="${b.key}" data-val="safe">✅ Safe</button>
+          <button type="button" class="choice-btn" data-key="${b.key}" data-val="unsafe">⚠️ Unsafe</button>
+        </div>
+        <input type="text" class="note-input" placeholder="หมายเหตุ (ถ้ามี)" data-notekey="${b.key}">
+      `;
+      behaviorListEl.appendChild(item);
+    });
+
+    behaviorListEl.querySelectorAll(".choice-btn").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const key = btn.dataset.key;
+        const val = btn.dataset.val;
+        currentSelections[key] = (currentSelections[key] === val) ? null : val;
+        updateBehaviorUI(key);
+        checkSubmitEnabled();
+      });
+    });
+    behaviorListEl.querySelectorAll(".note-input").forEach(inp=>{
+      inp.addEventListener("input", ()=>{
+        currentNotes[inp.dataset.notekey] = inp.value;
+      });
+    });
+  }
+
+  function updateBehaviorUI(key){
+    const item = document.getElementById("item-" + key);
+    const val = currentSelections[key];
+    item.classList.remove("safe","unsafe");
+    item.querySelectorAll(".choice-btn").forEach(btn=>{
+      btn.classList.remove("safe-sel","unsafe-sel");
+    });
+    if(val === "safe"){
+      item.classList.add("safe");
+      item.querySelector('[data-val="safe"]').classList.add("safe-sel");
+    } else if(val === "unsafe"){
+      item.classList.add("unsafe");
+      item.querySelector('[data-val="unsafe"]').classList.add("unsafe-sel");
+    }
+  }
+
+  function checkSubmitEnabled(){
+    const allSet = BEHAVIORS.every(b => currentSelections[b.key] !== null);
+    document.getElementById("submit-btn").disabled = !allSet;
+  }
+
+  function resetForm(){
+    buildBehaviorForm();
+    checkSubmitEnabled();
+    document.getElementById("f-notes").value = "";
+    document.getElementById("f-time").value = "";
+    const now = new Date();
+    document.getElementById("f-date").value = now.toISOString().slice(0,10);
+  }
+
+  // ---------- Submit ----------
+  document.getElementById("submit-btn").addEventListener("click", ()=>{
+    const record = {
+      id: Date.now(),
+      date: document.getElementById("f-date").value || new Date().toISOString().slice(0,10),
+      time: document.getElementById("f-time").value || "",
+      inspector: document.getElementById("f-inspector").value || "(ไม่ระบุ)",
+      area: document.getElementById("f-area").value || "(ไม่ระบุ)",
+      notes: document.getElementById("f-notes").value || "",
+      behaviors: BEHAVIORS.map(b=>({
+        key: b.key,
+        name: b.name,
+        status: currentSelections[b.key],
+        note: currentNotes[b.key] || ""
+      }))
+    };
+    records.unshift(record);
+    saveRecords(records);
+
+    if(getWebAppUrl()){
+      if(navigator.onLine){
+        sendToSheet(record).then(ok=>{
+          if(!ok) queueForSync(record);
+          updateSyncStatusText();
+        });
+      } else {
+        queueForSync(record);
+        updateSyncStatusText();
+      }
+    }
+
+    resetForm();
+    showSavedBanner();
+  });
+
+  function showSavedBanner(){
+    let banner = document.getElementById("saved-banner");
+    if(!banner){
+      banner = document.createElement("div");
+      banner.id = "saved-banner";
+      banner.className = "confirm-banner";
+      banner.innerHTML = `<span>✅ บันทึกผลการเดินตรวจเรียบร้อยแล้ว</span>`;
+      document.getElementById("tab-walk").insertBefore(banner, document.getElementById("tab-walk").firstChild);
+    }
+    banner.style.display = "flex";
+    setTimeout(()=>{ banner.style.display = "none"; }, 3000);
+  }
+
+  // ---------- Dashboard ----------
+  function computeStats(){
+    const totals = {};
+    BEHAVIORS.forEach(b => totals[b.key] = {safe:0, total:0, name:b.name});
+    let overallSafe = 0, overallTotal = 0;
+
+    records.forEach(r=>{
+      r.behaviors.forEach(bh=>{
+        if(bh.status === "safe" || bh.status === "unsafe"){
+          totals[bh.key].total++;
+          overallTotal++;
+          if(bh.status === "safe"){
+            totals[bh.key].safe++;
+            overallSafe++;
+          }
+        }
+      });
+    });
+    return {totals, overallSafe, overallTotal};
+  }
+
+  function renderDashboard(){
+    const {totals, overallSafe, overallTotal} = computeStats();
+    document.getElementById("stat-total-walks").textContent = records.length;
+    document.getElementById("stat-safe-rate").textContent = overallTotal > 0
+      ? Math.round((overallSafe/overallTotal)*100) + "%"
+      : "–";
+
+    const barsContainer = document.getElementById("bars-container");
+    barsContainer.innerHTML = "";
+
+    if(records.length === 0){
+      barsContainer.innerHTML = `<div class="empty-state">ยังไม่มีข้อมูล — เริ่มบันทึกการเดินตรวจในแท็บ "บันทึกวันนี้"</div>`;
+      document.getElementById("lowest-callout-box").innerHTML = "";
+      return;
+    }
+
+    let lowestKey = null, lowestPct = 101;
+    BEHAVIORS.forEach(b=>{
+      const t = totals[b.key];
+      const pct = t.total > 0 ? Math.round((t.safe/t.total)*100) : null;
+      const row = document.createElement("div");
+      row.className = "bar-row";
+      const pctDisplay = pct === null ? "N/A" : pct + "%";
+      const barColor = pct === null ? "#d1d5db" : (pct >= 95 ? "linear-gradient(90deg,#2e9e5b,#57c583)" : pct >= 80 ? "linear-gradient(90deg,#e08e2b,#f2b94d)" : "linear-gradient(90deg,#d9483d,#e97a70)");
+      row.innerHTML = `
+        <div class="bar-label">${b.name.split(" (")[0]}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${pct||0}%; background:${barColor}"></div></div>
+        <div class="bar-pct">${pctDisplay}</div>
+      `;
+      barsContainer.appendChild(row);
+      if(pct !== null && pct < lowestPct){
+        lowestPct = pct;
+        lowestKey = b;
+      }
+    });
+
+    const calloutBox = document.getElementById("lowest-callout-box");
+    if(lowestKey){
+      calloutBox.innerHTML = `<div class="lowest-callout">🎯 หัวข้อที่คะแนนต่ำสุดคือ <b>${lowestKey.name.split(" (")[0]}</b> (${lowestPct}%) — แนะนำให้ใช้เป็นแคมเปญ/หัวข้อ Toolbox Talk ถัดไป</div>`;
+    } else {
+      calloutBox.innerHTML = "";
+    }
+  }
+
+  // ---------- History ----------
+  function renderHistory(){
+    const listEl = document.getElementById("history-list");
+    listEl.innerHTML = "";
+    if(records.length === 0){
+      listEl.innerHTML = `<div class="empty-state">ยังไม่มีประวัติการเดินตรวจ</div>`;
+      return;
+    }
+    records.forEach(r=>{
+      const safeCount = r.behaviors.filter(b=>b.status==="safe").length;
+      const unsafeCount = r.behaviors.filter(b=>b.status==="unsafe").length;
+      const pct = Math.round((safeCount/(safeCount+unsafeCount))*100) || 0;
+      const badgeClass = pct >= 95 ? "badge-green" : pct >= 80 ? "badge-orange" : "badge-red";
+
+      const item = document.createElement("div");
+      item.className = "history-item";
+      item.innerHTML = `
+        <div class="history-top">
+          <div>
+            <span class="name">${r.date} ${r.time ? "· "+r.time : ""}</span><br>
+            <span style="color:var(--muted); font-size:0.78rem;">${r.inspector} · ${r.area}</span>
+          </div>
+          <span class="badge ${badgeClass}">${pct}% Safe</span>
+        </div>
+        <div class="history-detail">
+          ${r.behaviors.map(b=>`
+            <div class="history-behavior-row">
+              <span>${b.name.split(" (")[0]}</span>
+              <span>${b.status === "safe" ? "✅ Safe" : "⚠️ Unsafe"}${b.note ? " — "+escapeHtml(b.note) : ""}</span>
+            </div>
+          `).join("")}
+          ${r.notes ? `<div style="margin-top:8px;"><b>หมายเหตุ:</b> ${escapeHtml(r.notes)}</div>` : ""}
+          <div style="margin-top:10px; text-align:right;">
+            <button class="delete-record" data-id="${r.id}" style="background:none;border:none;color:var(--red);font-size:0.78rem;cursor:pointer;text-decoration:underline;">ลบรายการนี้</button>
+          </div>
+        </div>
+      `;
+      item.addEventListener("click", (e)=>{
+        if(e.target.classList.contains("delete-record")) return;
+        item.classList.toggle("open");
+      });
+      listEl.appendChild(item);
+    });
+
+    listEl.querySelectorAll(".delete-record").forEach(btn=>{
+      btn.addEventListener("click", (e)=>{
+        e.stopPropagation();
+        const id = Number(btn.dataset.id);
+        if(confirm("ต้องการลบรายการนี้หรือไม่?")){
+          records = records.filter(r=>r.id !== id);
+          saveRecords(records);
+          renderHistory();
+        }
+      });
+    });
+  }
+
+  function escapeHtml(str){
+    const div = document.createElement("div");
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  // ---------- Export / Clear ----------
+  document.getElementById("export-csv").addEventListener("click", ()=>{
+    if(records.length === 0){ alert("ยังไม่มีข้อมูลให้ export"); return; }
+    let csv = "Date,Time,Inspector,Area,Behavior,Status,Note,GeneralNotes\n";
+    records.forEach(r=>{
+      r.behaviors.forEach(b=>{
+        const row = [r.date, r.time, r.inspector, r.area, b.name.split(" (")[0], b.status, b.note, r.notes]
+          .map(v => `"${String(v||"").replace(/"/g,'""')}"`).join(",");
+        csv += row + "\n";
+      });
+    });
+    const blob = new Blob([csv], {type:"text/csv;charset=utf-8;"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "safety_walk_records_" + new Date().toISOString().slice(0,10) + ".csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  document.getElementById("clear-all").addEventListener("click", ()=>{
+    if(records.length === 0) return;
+    if(confirm("ต้องการล้างข้อมูลประวัติทั้งหมดหรือไม่? การกระทำนี้ไม่สามารถย้อนกลับได้")){
+      records = [];
+      saveRecords(records);
+      renderHistory();
+      renderDashboard();
+    }
+  });
+
+  // ---------- Init ----------
+  renderManageBehaviors();
+  resetForm();
+  renderDashboard();
+  updateSyncStatusText();
+  if(navigator.onLine) flushPending();
+})();
+</script>
+
+</body>
+</html>
