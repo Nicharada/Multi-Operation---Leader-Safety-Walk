@@ -395,8 +395,8 @@
 </head>
 <body>
 
-<header>
-  <h1>🦺 Leader Safety Walk Checklist</h1>
+<header style="position:relative;">
+  <h1>🦺 Leader Safety Walk Checklist <span id="admin-gear" style="cursor:pointer; font-size:0.9rem; opacity:0.35; float:right;" title="ตั้งค่าแอดมิน">⚙</span></h1>
   <p>Warehouse Safety Behavior Change — บันทึกผลการเดินตรวจความปลอดภัยประจำวัน</p>
 </header>
 
@@ -410,7 +410,7 @@
 
   <!-- TAB: WALK FORM -->
   <section id="tab-walk">
-    <div class="card" id="sync-settings-card">
+    <div class="card hidden" id="sync-settings-card">
       <h2>⚙️ ตั้งค่าการซิงค์ข้อมูล (Google Sheet)</h2>
       <label>Web App URL (จาก Google Apps Script)</label>
       <input type="text" id="f-webapp-url" placeholder="https://script.google.com/macros/s/xxxx/exec">
@@ -578,6 +578,7 @@
 
   const STORAGE_KEY = "ych_safety_walk_records_v1";
   const URL_KEY = "ych_safety_walk_webapp_url";
+  const HARDCODED_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzpO0-4R08tBSsvnwFXtYi1iq-pCBzgyYMOxbt4tULjxPMqOv5s6f2zFFUF6vNHasuu/exec";
   const PENDING_KEY = "ych_safety_walk_pending_sync";
 
   function loadRecords(){
@@ -590,8 +591,20 @@
     localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
   }
 
-  function getWebAppUrl(){ return localStorage.getItem(URL_KEY) || ""; }
+  function getWebAppUrl(){
+    const stored = localStorage.getItem(URL_KEY);
+    if(stored) return stored;
+    if(HARDCODED_WEBAPP_URL && HARDCODED_WEBAPP_URL !== "PASTE_YOUR_WEB_APP_URL_HERE"){
+      localStorage.setItem(URL_KEY, HARDCODED_WEBAPP_URL);
+      return HARDCODED_WEBAPP_URL;
+    }
+    return "";
+  }
   function setWebAppUrl(url){ localStorage.setItem(URL_KEY, url); }
+
+  document.getElementById("admin-gear").addEventListener("click", ()=>{
+    document.getElementById("sync-settings-card").classList.toggle("hidden");
+  });
 
   function loadPending(){
     try{
