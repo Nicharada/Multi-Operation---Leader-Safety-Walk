@@ -373,6 +373,51 @@
     color:var(--muted);
     margin-top:6px;
   }
+  .month-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:12px 14px;
+    border:1px solid var(--border);
+    border-radius:10px;
+    margin-bottom:8px;
+    background:#fafbfc;
+    cursor:pointer;
+    transition:all 0.12s;
+  }
+  .month-row:hover{
+    border-color:var(--orange2);
+    background:#fffaf0;
+  }
+  .month-row.selected{
+    border-color:var(--navy2);
+    background:#eef3f8;
+  }
+  .month-row .month-name{
+    font-weight:700;
+    color:var(--navy);
+    font-size:0.92rem;
+    width:110px;
+    flex-shrink:0;
+  }
+  .month-row .month-mid{
+    font-size:0.8rem;
+    color:var(--muted);
+    flex:1;
+    text-align:center;
+  }
+  .month-row .month-pct{
+    font-weight:800;
+    font-size:1rem;
+    width:60px;
+    text-align:right;
+  }
+  .loading-text{
+    text-align:center;
+    color:var(--muted);
+    font-size:0.85rem;
+    padding:14px;
+  }
   .hidden{display:none !important;}
   .filter-select{margin-bottom:14px;}
   .confirm-banner{
@@ -469,21 +514,27 @@
   <!-- TAB: DASHBOARD -->
   <section id="tab-dashboard" class="hidden">
     <div class="card">
-      <h2>📊 ภาพรวม Safe Behavior Rate</h2>
+      <h2>📊 ภาพรวม Safe Behavior Rate (รวมทุกคน)</h2>
       <div class="stat-grid">
         <div class="stat-box">
-          <div class="num" id="stat-total-walks">0</div>
-          <div class="lbl">จำนวนการเดินตรวจ</div>
+          <div class="num" id="stat-total-walks">–</div>
+          <div class="lbl">จำนวนการเดินตรวจ (ทั้งหมด)</div>
         </div>
         <div class="stat-box">
           <div class="num" id="stat-safe-rate">–</div>
           <div class="lbl">Safe Behavior Rate เฉลี่ย</div>
         </div>
       </div>
+      <div id="dashboard-sync-note" style="font-size:0.78rem; color:var(--muted);"></div>
     </div>
 
     <div class="card">
-      <h2>อัตราความปลอดภัยตามหัวข้อ (Compliance Rate by Behavior)</h2>
+      <h2>🗓️ สรุปผลรายเดือน (รวมทุกคน)</h2>
+      <div id="monthly-summary-container"></div>
+    </div>
+
+    <div class="card">
+      <h2 id="bars-title">อัตราความปลอดภัยตามหัวข้อ (Compliance Rate by Behavior) — ภาพรวมทั้งหมด</h2>
       <div id="bars-container"></div>
       <div id="lowest-callout-box"></div>
     </div>
@@ -819,68 +870,217 @@
     setTimeout(()=>{ banner.style.display = "none"; }, 3000);
   }
 
-  // ---------- Dashboard ----------
-  function computeStats(){
-    const totals = {};
-    BEHAVIORS.forEach(b => totals[b.key] = {safe:0, total:0, name:b.name});
-    let overallSafe = 0, overallTotal = 0;
+  // ---------- Dashboard (fetch + aggregate from Google Sheet) ----------
+  let sheetRecords = [];
 
-    records.forEach(r=>{
-      r.behaviors.forEach(bh=>{
-        if(bh.status === "safe" || bh.status === "unsafe"){
-          totals[bh.key].total++;
-          overallTotal++;
-          if(bh.status === "safe"){
-            totals[bh.key].safe++;
-            overallSafe++;
-          }
-        }
-      });
-    });
-    return {totals, overallSafe, overallTotal};
+  const THAI_MONTHS = ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
+  function formatThaiMonth(ym){
+    const parts = ym.split("-");
+    const y = parts[0], m = parseInt(parts[1],10);
+    return (THAI_MONTHS[m-1] || ym) + " " + y;
   }
 
-  function renderDashboard(){
-    const {totals, overallSafe, overallTotal} = computeStats();
-    document.getElementById("stat-total-walks").textContent = records.length;
-    document.getElementById("stat-safe-rate").textContent = overallTotal > 0
-      ? Math.round((overallSafe/overallTotal)*100) + "%"
-      : "–";
+  function fetchSheetRecords(){
+    const url = getWebAppUrl();
+    const note = document.getElementById("dashboard-sync-note");
+    if(!url){
+      note.textContent = "ยังไม่ได้เชื่อมต่อ Google Sheet — แสดงเฉพาะข้อมูลในเครื่องนี้";
+      return Promise.resolve(null);
+    }
+    note.textContent = "กำลังโหลดข้อมูลจาก Google Sheet...";
+    return fetch(url)
+      .then(r=>r.json())
+      .then(data=>{
+        sheetRecords = data.records || [];
+        note.textContent = "ข้อมูลรวมทุกคนจาก Google Sheet · อัปเดตล่าสุด " + new Date().toLocaleTimeString('th-TH');
+        return sheetRecords;
+      })
+      .catch(()=>{
+        note.textContent = "ไม่สามารถโหลดข้อมูลจาก Google Sheet ได้ตอนนี้ — แสดงข้อมูลในเครื่องนี้แทน";
+        return null;
+      });
+  }
 
+  function aggregateSheetData(){
+    const monthMap = {};
+    const behaviorMap = {};
+    const monthBehaviorMap = {};
+    let overallSafe = 0, overallTotal = 0;
+    const walkKeysOverall = new Set();
+
+    sheetRecords.forEach(row=>{
+      const status = (row.Status || "").toString().toLowerCase().trim();
+      if(status !== "safe" && status !== "unsafe") return;
+      const dateStr = (row.Date || "").toString().slice(0,10);
+      const month = dateStr.slice(0,7) || "ไม่ระบุ";
+      const walkKey = [row.Date, row.Time, row.Inspector, row.Area].join("|");
+      const bname = row.Behavior || "ไม่ระบุ";
+
+      if(!monthMap[month]) monthMap[month] = {walkKeys: new Set(), safe:0, total:0};
+      monthMap[month].walkKeys.add(walkKey);
+      monthMap[month].total++;
+      if(status === "safe") monthMap[month].safe++;
+
+      walkKeysOverall.add(walkKey);
+      overallTotal++;
+      if(status === "safe") overallSafe++;
+
+      if(!behaviorMap[bname]) behaviorMap[bname] = {safe:0, total:0};
+      behaviorMap[bname].total++;
+      if(status === "safe") behaviorMap[bname].safe++;
+
+      if(!monthBehaviorMap[month]) monthBehaviorMap[month] = {};
+      if(!monthBehaviorMap[month][bname]) monthBehaviorMap[month][bname] = {safe:0, total:0};
+      monthBehaviorMap[month][bname].total++;
+      if(status === "safe") monthBehaviorMap[month][bname].safe++;
+    });
+
+    return {monthMap, behaviorMap, monthBehaviorMap, overallSafe, overallTotal, totalWalks: walkKeysOverall.size};
+  }
+
+  function renderBarsAndLowest(behaviorMap){
     const barsContainer = document.getElementById("bars-container");
     barsContainer.innerHTML = "";
-
-    if(records.length === 0){
-      barsContainer.innerHTML = `<div class="empty-state">ยังไม่มีข้อมูล — เริ่มบันทึกการเดินตรวจในแท็บ "บันทึกวันนี้"</div>`;
+    const names = Object.keys(behaviorMap);
+    if(names.length === 0){
+      barsContainer.innerHTML = `<div class="empty-state">ยังไม่มีข้อมูล</div>`;
       document.getElementById("lowest-callout-box").innerHTML = "";
       return;
     }
-
-    let lowestKey = null, lowestPct = 101;
-    BEHAVIORS.forEach(b=>{
-      const t = totals[b.key];
+    let lowestName = null, lowestPct = 101;
+    names.forEach(name=>{
+      const t = behaviorMap[name];
       const pct = t.total > 0 ? Math.round((t.safe/t.total)*100) : null;
       const row = document.createElement("div");
       row.className = "bar-row";
       const pctDisplay = pct === null ? "N/A" : pct + "%";
       const barColor = pct === null ? "#d1d5db" : (pct >= 95 ? "linear-gradient(90deg,#2e9e5b,#57c583)" : pct >= 80 ? "linear-gradient(90deg,#e08e2b,#f2b94d)" : "linear-gradient(90deg,#d9483d,#e97a70)");
       row.innerHTML = `
-        <div class="bar-label">${b.name.split(" (")[0]}</div>
+        <div class="bar-label">${name.split(" (")[0]}</div>
         <div class="bar-track"><div class="bar-fill" style="width:${pct||0}%; background:${barColor}"></div></div>
         <div class="bar-pct">${pctDisplay}</div>
       `;
       barsContainer.appendChild(row);
       if(pct !== null && pct < lowestPct){
         lowestPct = pct;
-        lowestKey = b;
+        lowestName = name;
       }
     });
-
     const calloutBox = document.getElementById("lowest-callout-box");
-    if(lowestKey){
-      calloutBox.innerHTML = `<div class="lowest-callout">🎯 หัวข้อที่คะแนนต่ำสุดคือ <b>${lowestKey.name.split(" (")[0]}</b> (${lowestPct}%) — แนะนำให้ใช้เป็นแคมเปญ/หัวข้อ Toolbox Talk ถัดไป</div>`;
+    calloutBox.innerHTML = lowestName
+      ? `<div class="lowest-callout">🎯 หัวข้อที่คะแนนต่ำสุดคือ <b>${lowestName.split(" (")[0]}</b> (${lowestPct}%) — แนะนำให้ใช้เป็นแคมเปญ/หัวข้อ Toolbox Talk ถัดไป</div>`
+      : "";
+  }
+
+  let lastAggregation = null;
+  let selectedMonth = null;
+
+  function renderMonthlySummary(monthMap){
+    const container = document.getElementById("monthly-summary-container");
+    container.innerHTML = "";
+    const months = Object.keys(monthMap).filter(m=>m!=="ไม่ระบุ").sort().reverse();
+    if(months.length === 0){
+      container.innerHTML = `<div class="empty-state">ยังไม่มีข้อมูล</div>`;
+      return;
+    }
+
+    const hint = document.createElement("div");
+    hint.className = "hint-text";
+    hint.style.marginBottom = "8px";
+    hint.textContent = "💡 กดที่เดือนเพื่อดูอัตราความปลอดภัยตามหัวข้อของเดือนนั้น — เดือนใหม่จะเพิ่มขึ้นอัตโนมัติเมื่อมีข้อมูล";
+    container.appendChild(hint);
+
+    months.forEach(m=>{
+      const d = monthMap[m];
+      const pct = d.total > 0 ? Math.round((d.safe/d.total)*100) : 0;
+      const color = pct >= 95 ? "var(--green)" : pct >= 80 ? "var(--orange2)" : "var(--red)";
+      const row = document.createElement("div");
+      row.className = "month-row" + (selectedMonth === m ? " selected" : "");
+      row.dataset.month = m;
+      row.innerHTML = `
+        <div class="month-name">${formatThaiMonth(m)}</div>
+        <div class="month-mid">${d.walkKeys.size} ครั้งเดินตรวจ</div>
+        <div class="month-pct" style="color:${color};">${pct}%</div>
+      `;
+      row.addEventListener("click", ()=>{
+        selectedMonth = (selectedMonth === m) ? null : m;
+        applyMonthSelection();
+      });
+      container.appendChild(row);
+    });
+  }
+
+  function applyMonthSelection(){
+    if(!lastAggregation) return;
+    document.querySelectorAll(".month-row").forEach(r=>{
+      r.classList.toggle("selected", r.dataset.month === selectedMonth);
+    });
+    const titleEl = document.getElementById("bars-title");
+    if(selectedMonth){
+      const bMap = lastAggregation.monthBehaviorMap[selectedMonth] || {};
+      titleEl.innerHTML = `อัตราความปลอดภัยตามหัวข้อ — ${formatThaiMonth(selectedMonth)} <span id="reset-month-btn" style="font-size:0.75rem; color:var(--navy2); cursor:pointer; text-decoration:underline; font-weight:400; margin-left:8px;">(ดูภาพรวมทั้งหมด)</span>`;
+      renderBarsAndLowest(bMap);
     } else {
-      calloutBox.innerHTML = "";
+      titleEl.innerHTML = `อัตราความปลอดภัยตามหัวข้อ (Compliance Rate by Behavior) — ภาพรวมทั้งหมด`;
+      renderBarsAndLowest(lastAggregation.behaviorMap);
+    }
+    const resetBtn = document.getElementById("reset-month-btn");
+    if(resetBtn){
+      resetBtn.addEventListener("click", (e)=>{
+        e.stopPropagation();
+        selectedMonth = null;
+        applyMonthSelection();
+        document.querySelectorAll(".month-row").forEach(r=>r.classList.remove("selected"));
+      });
+    }
+  }
+
+  function renderDashboardFromSheet(){
+    const agg = aggregateSheetData();
+    lastAggregation = agg;
+    const {monthMap, overallSafe, overallTotal, totalWalks} = agg;
+    document.getElementById("stat-total-walks").textContent = totalWalks;
+    document.getElementById("stat-safe-rate").textContent = overallTotal > 0
+      ? Math.round((overallSafe/overallTotal)*100) + "%"
+      : "–";
+    renderMonthlySummary(monthMap);
+    applyMonthSelection();
+  }
+
+  function renderDashboardFromLocal(){
+    const totals = {};
+    BEHAVIORS.forEach(b => totals[b.key] = {safe:0, total:0, name:b.name});
+    let overallSafe = 0, overallTotal = 0;
+    records.forEach(r=>{
+      r.behaviors.forEach(bh=>{
+        if(bh.status === "safe" || bh.status === "unsafe"){
+          totals[bh.key].total++;
+          overallTotal++;
+          if(bh.status === "safe"){ totals[bh.key].safe++; overallSafe++; }
+        }
+      });
+    });
+    document.getElementById("stat-total-walks").textContent = records.length;
+    document.getElementById("stat-safe-rate").textContent = overallTotal > 0
+      ? Math.round((overallSafe/overallTotal)*100) + "%"
+      : "–";
+    document.getElementById("monthly-summary-container").innerHTML =
+      `<div class="empty-state">ยังไม่ได้เชื่อมต่อ Google Sheet จึงยังสรุปรายเดือนแบบรวมทุกคนไม่ได้</div>`;
+
+    const behaviorMapLocal = {};
+    BEHAVIORS.forEach(b=>{ behaviorMapLocal[b.name] = totals[b.key]; });
+    renderBarsAndLowest(behaviorMapLocal);
+  }
+
+  function renderDashboard(){
+    const url = getWebAppUrl();
+    if(url){
+      fetchSheetRecords().then(data=>{
+        if(data){ renderDashboardFromSheet(); }
+        else { renderDashboardFromLocal(); }
+      });
+    } else {
+      renderDashboardFromLocal();
     }
   }
 
@@ -947,24 +1147,57 @@
     return div.innerHTML;
   }
 
-  // ---------- Export / Clear ----------
-  document.getElementById("export-csv").addEventListener("click", ()=>{
-    if(records.length === 0){ alert("ยังไม่มีข้อมูลให้ export"); return; }
+  function downloadCsv(csv, prefix){
+    const blob = new Blob(["\uFEFF" + csv], {type:"text/csv;charset=utf-8;"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = prefix + new Date().toISOString().slice(0,10) + ".csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function exportLocalCsv(){
+    if(records.length === 0){ alert("ยังไม่มีข้อมูลในเครื่องนี้ให้ export"); return; }
     let csv = "Date,Time,Inspector,Area,Behavior,Status,Note,GeneralNotes\n";
     records.forEach(r=>{
       r.behaviors.forEach(b=>{
-        const row = [r.date, r.time, r.inspector, r.area, b.name.split(" (")[0], b.status, b.note, r.notes]
+        const row = [r.date, r.time, r.inspector, r.area, b.name, b.status, b.note, r.notes]
           .map(v => `"${String(v||"").replace(/"/g,'""')}"`).join(",");
         csv += row + "\n";
       });
     });
-    const blob = new Blob([csv], {type:"text/csv;charset=utf-8;"});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "safety_walk_records_" + new Date().toISOString().slice(0,10) + ".csv";
-    a.click();
-    URL.revokeObjectURL(url);
+    downloadCsv(csv, "safety_walk_local_records_");
+  }
+
+  document.getElementById("export-csv").addEventListener("click", ()=>{
+    const url = getWebAppUrl();
+    if(!url){
+      exportLocalCsv();
+      return;
+    }
+    const btn = document.getElementById("export-csv");
+    const originalText = btn.textContent;
+    btn.textContent = "⏳ กำลังดึงข้อมูล...";
+    fetch(url)
+      .then(r=>r.json())
+      .then(data=>{
+        const recs = data.records || [];
+        btn.textContent = originalText;
+        if(recs.length === 0){ alert("ยังไม่มีข้อมูลใน Google Sheet ให้ export"); return; }
+        let csv = "Timestamp,Date,Time,Inspector,Area,Behavior,Status,Note,GeneralNotes\n";
+        recs.forEach(r=>{
+          const row = [r.Timestamp, r.Date, r.Time, r.Inspector, r.Area, r.Behavior, r.Status, r.Note, r.GeneralNotes]
+            .map(v => `"${String(v||"").replace(/"/g,'""')}"`).join(",");
+          csv += row + "\n";
+        });
+        downloadCsv(csv, "safety_walk_all_records_");
+      })
+      .catch(()=>{
+        btn.textContent = originalText;
+        alert("ไม่สามารถดึงข้อมูลจาก Google Sheet ได้ตอนนี้ — จะ export ข้อมูลในเครื่องนี้แทน");
+        exportLocalCsv();
+      });
   });
 
   document.getElementById("clear-all").addEventListener("click", ()=>{
