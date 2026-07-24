@@ -418,6 +418,31 @@
     font-size:0.85rem;
     padding:14px;
   }
+  .save-toast{
+    position:fixed;
+    left:50%;
+    bottom:70px;
+    transform:translateX(-50%) translateY(20px);
+    background:var(--green);
+    color:#fff;
+    padding:14px 24px;
+    border-radius:12px;
+    font-size:0.95rem;
+    font-weight:700;
+    box-shadow:0 8px 24px rgba(0,0,0,0.2);
+    z-index:100;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity 0.25s ease, transform 0.25s ease;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    white-space:nowrap;
+  }
+  .save-toast.show{
+    opacity:1;
+    transform:translateX(-50%) translateY(0);
+  }
   .hidden{display:none !important;}
   .filter-select{margin-bottom:14px;}
   .confirm-banner{
@@ -556,6 +581,8 @@
 </main>
 
 <div class="offline-pill"><span class="dot"></span> ทำงานแบบออฟไลน์ — ข้อมูลถูกบันทึกไว้ในเครื่องนี้เท่านั้น</div>
+
+<div id="save-toast" class="save-toast"></div>
 
 <script>
 (function(){
@@ -841,33 +868,36 @@
     records.unshift(record);
     saveRecords(records);
 
+    let syncMsg = "";
     if(getWebAppUrl()){
       if(navigator.onLine){
+        syncMsg = "กำลังส่งเข้า Google Sheet...";
         sendToSheet(record).then(ok=>{
           if(!ok) queueForSync(record);
           updateSyncStatusText();
         });
       } else {
         queueForSync(record);
+        syncMsg = "ออฟไลน์อยู่ — จะส่งเข้า Google Sheet อัตโนมัติเมื่อมีเน็ต";
         updateSyncStatusText();
       }
+    } else {
+      syncMsg = "บันทึกไว้ในเครื่องนี้เท่านั้น";
     }
 
     resetForm();
-    showSavedBanner();
+    showSavedBanner(syncMsg);
   });
 
-  function showSavedBanner(){
-    let banner = document.getElementById("saved-banner");
-    if(!banner){
-      banner = document.createElement("div");
-      banner.id = "saved-banner";
-      banner.className = "confirm-banner";
-      banner.innerHTML = `<span>✅ บันทึกผลการเดินตรวจเรียบร้อยแล้ว</span>`;
-      document.getElementById("tab-walk").insertBefore(banner, document.getElementById("tab-walk").firstChild);
-    }
-    banner.style.display = "flex";
-    setTimeout(()=>{ banner.style.display = "none"; }, 3000);
+  function showSavedBanner(syncMsg){
+    const toast = document.getElementById("save-toast");
+    toast.innerHTML = "✅ บันทึกผลการเดินตรวจสำเร็จแล้ว!" + (syncMsg ? `<br><span style="font-weight:400; font-size:0.8rem;">${syncMsg}</span>` : "");
+    toast.classList.add("show");
+    window.scrollTo({top:0, behavior:"smooth"});
+    clearTimeout(window._toastTimer);
+    window._toastTimer = setTimeout(()=>{
+      toast.classList.remove("show");
+    }, 3200);
   }
 
   // ---------- Dashboard (fetch + aggregate from Google Sheet) ----------
