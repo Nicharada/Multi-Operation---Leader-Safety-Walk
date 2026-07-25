@@ -6,82 +6,106 @@
 <title>Leader Safety Walk Checklist</title>
 <style>
   :root{
-    --navy:#0b2a4a;
-    --navy2:#13395f;
-    --orange:#f2a900;
+    --navy:#0b2334;
+    --navy2:#123049;
+    --steel:#3a4a5c;
+    --orange:#f5a623;
     --orange2:#e08e2b;
+    --amber:#ffc857;
     --green:#2e9e5b;
     --red:#d9483d;
-    --gray-bg:#f3f4f6;
+    --gray-bg:#eef1f4;
     --card:#ffffff;
     --border:#e2e5ea;
-    --text:#22262b;
+    --text:#1c2430;
     --muted:#6b7280;
   }
   *{box-sizing:border-box;}
   body{
     margin:0;
     font-family:'Segoe UI', 'Tahoma', 'Sarabun', sans-serif;
-    background:var(--gray-bg);
+    background:
+      radial-gradient(circle at 100% 0%, rgba(245,166,35,0.06), transparent 40%),
+      repeating-linear-gradient(135deg, rgba(11,35,52,0.02) 0px, rgba(11,35,52,0.02) 2px, transparent 2px, transparent 26px),
+      var(--gray-bg);
     color:var(--text);
-    padding-bottom:60px;
+    padding-bottom:70px;
+  }
+  .hazard-strip{
+    height:8px;
+    width:100%;
+    background:repeating-linear-gradient(-45deg, #ffc857 0px, #ffc857 14px, #1c2430 14px, #1c2430 28px);
   }
   header{
-    background:linear-gradient(135deg,var(--navy),var(--navy2));
+    background:linear-gradient(135deg,var(--navy),var(--navy2) 60%, var(--steel));
     color:#fff;
-    padding:22px 18px 60px 18px;
+    padding:24px 18px 64px 18px;
     position:relative;
     overflow:hidden;
   }
   header::after{
-    content:"";
+    content:"📦";
     position:absolute;
-    right:-40px;
-    top:-40px;
-    width:180px;
-    height:180px;
-    background:rgba(242,169,0,0.15);
-    border-radius:50%;
+    right:-6px;
+    top:-14px;
+    font-size:6.5rem;
+    opacity:0.10;
+    transform:rotate(-12deg);
+  }
+  header::before{
+    content:"🏗️";
+    position:absolute;
+    left:-10px;
+    bottom:-20px;
+    font-size:5rem;
+    opacity:0.08;
+    transform:rotate(8deg);
   }
   header h1{
     margin:0;
-    font-size:1.4rem;
-    font-weight:700;
-    letter-spacing:0.3px;
+    font-size:1.42rem;
+    font-weight:800;
+    letter-spacing:0.2px;
+    position:relative;
+    z-index:1;
   }
   header p{
     margin:6px 0 0 0;
     font-size:0.85rem;
     opacity:0.85;
+    position:relative;
+    z-index:1;
   }
   .tabs{
     display:flex;
     max-width:720px;
-    margin:-40px auto 0 auto;
+    margin:-42px auto 0 auto;
     background:var(--card);
-    border-radius:14px;
-    box-shadow:0 6px 20px rgba(0,0,0,0.12);
+    border-radius:18px;
+    box-shadow:0 10px 28px rgba(11,35,52,0.16);
     overflow:hidden;
     position:relative;
     z-index:2;
+    padding:6px;
+    gap:4px;
   }
   .tab-btn{
     flex:1;
-    padding:14px 8px;
+    padding:12px 8px;
     text-align:center;
-    font-size:0.85rem;
-    font-weight:600;
+    font-size:0.84rem;
+    font-weight:700;
     color:var(--muted);
     background:none;
     border:none;
+    border-radius:13px;
     cursor:pointer;
-    border-bottom:3px solid transparent;
-    transition:all 0.15s;
+    transition:all 0.18s ease;
   }
   .tab-btn.active{
-    color:var(--navy);
-    border-bottom:3px solid var(--orange);
-    background:#fffaf0;
+    color:#fff;
+    background:linear-gradient(135deg,var(--orange2),var(--orange));
+    box-shadow:0 4px 12px rgba(224,142,43,0.35);
   }
   main{
     max-width:720px;
@@ -90,11 +114,12 @@
   }
   .card{
     background:var(--card);
-    border-radius:12px;
-    padding:18px;
+    border-radius:18px;
+    padding:20px;
     margin-bottom:16px;
-    box-shadow:0 2px 8px rgba(0,0,0,0.06);
+    box-shadow:0 3px 14px rgba(11,35,52,0.07);
     border:1px solid var(--border);
+    border-left:4px solid var(--orange);
   }
   .card h2{
     font-size:1rem;
@@ -113,36 +138,78 @@
   }
   input[type=text], input[type=date], select, textarea{
     width:100%;
-    padding:10px 12px;
-    border:1px solid var(--border);
-    border-radius:8px;
+    padding:11px 14px;
+    border:1.5px solid var(--border);
+    border-radius:12px;
     font-size:0.95rem;
     margin-bottom:12px;
     font-family:inherit;
+    background:#fbfcfd;
+    transition:border-color 0.15s ease;
+  }
+  input[type=text]:focus, input[type=date]:focus, select:focus, textarea:focus{
+    outline:none;
+    border-color:var(--orange2);
     background:#fff;
   }
   textarea{resize:vertical; min-height:50px;}
   .form-row{display:flex; gap:10px;}
-  .form-row > div{flex:1;}
+  .form-row > div{flex:1; min-width:0;}
+  @media (max-width:480px){
+    .form-row{flex-direction:column; gap:0;}
+  }
 
   .behavior-item{
     border:1px solid var(--border);
-    border-radius:10px;
-    padding:12px 14px;
-    margin-bottom:10px;
+    border-radius:16px;
+    padding:16px;
+    margin-bottom:12px;
     background:#fafbfc;
+    box-shadow:0 1px 3px rgba(0,0,0,0.04);
+    transition:all 0.2s ease;
   }
-  .behavior-item.safe{border-color:#bfe6cc; background:#f2fbf5;}
-  .behavior-item.unsafe{border-color:#f6c9c5; background:#fef4f3;}
+  .behavior-item:hover{
+    box-shadow:0 4px 12px rgba(0,0,0,0.08);
+    transform:translateY(-1px);
+  }
+  .behavior-item.safe{
+    border-color:#bfe6cc;
+    background:linear-gradient(135deg,#f2fbf5,#eafaf0);
+  }
+  .behavior-item.unsafe{
+    border-color:#f6c9c5;
+    background:linear-gradient(135deg,#fef4f3,#fdecea);
+  }
   .behavior-top{
     display:flex;
-    justify-content:space-between;
     align-items:center;
-    margin-bottom:8px;
+    gap:12px;
+    margin-bottom:12px;
+  }
+  .icon-badge{
+    width:44px;
+    height:44px;
+    min-width:44px;
+    border-radius:13px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:1.4rem;
+    background:linear-gradient(135deg,#eef3f9,#e2ebf5);
+    box-shadow:inset 0 0 0 1px rgba(11,42,74,0.06);
+    transition:all 0.2s ease;
+  }
+  .behavior-item.safe .icon-badge{
+    background:linear-gradient(135deg,#d9f2e2,#c5ecd3);
+  }
+  .behavior-item.unsafe .icon-badge{
+    background:linear-gradient(135deg,#fbdcd8,#f8c9c3);
   }
   .behavior-name{
-    font-weight:600;
+    font-weight:700;
     font-size:0.95rem;
+    line-height:1.3;
+    color:var(--text);
   }
   .na-toggle{
     font-size:0.72rem;
@@ -153,29 +220,32 @@
   }
   .btn-group{
     display:flex;
-    gap:8px;
+    gap:10px;
   }
   .choice-btn{
     flex:1;
-    padding:9px 0;
-    border-radius:8px;
+    padding:11px 0;
+    border-radius:10px;
     border:1.5px solid var(--border);
     background:#fff;
-    font-weight:600;
+    font-weight:700;
     font-size:0.85rem;
     cursor:pointer;
     color:var(--muted);
-    transition:all 0.12s;
+    transition:all 0.15s ease;
   }
+  .choice-btn:active{transform:scale(0.96);}
   .choice-btn.safe-sel{
     background:var(--green);
     border-color:var(--green);
     color:#fff;
+    box-shadow:0 3px 10px rgba(46,158,91,0.3);
   }
   .choice-btn.unsafe-sel{
     background:var(--red);
     border-color:var(--red);
     color:#fff;
+    box-shadow:0 3px 10px rgba(217,72,61,0.3);
   }
   .note-input{
     margin-top:8px;
@@ -186,11 +256,11 @@
 
   .submit-btn{
     width:100%;
-    padding:14px;
+    padding:15px;
     background:linear-gradient(135deg,var(--orange2),var(--orange));
     color:#fff;
     border:none;
-    border-radius:10px;
+    border-radius:999px;
     font-size:1rem;
     font-weight:700;
     cursor:pointer;
@@ -222,10 +292,10 @@
     margin-bottom:14px;
   }
   .stat-box{
-    background:#fff;
+    background:linear-gradient(135deg,#fbfcfd,#f3f6f9);
     border:1px solid var(--border);
-    border-radius:10px;
-    padding:12px;
+    border-radius:16px;
+    padding:16px 12px;
     text-align:center;
   }
   .stat-box .num{
@@ -364,14 +434,19 @@
   }
   .toolbar button{
     flex:1;
-    padding:10px;
-    border-radius:8px;
-    border:1px solid var(--border);
+    padding:11px;
+    border-radius:999px;
+    border:1.5px solid var(--border);
     background:#fff;
-    font-size:0.82rem;
-    font-weight:600;
+    font-size:0.8rem;
+    font-weight:700;
     color:var(--navy);
     cursor:pointer;
+    transition:all 0.15s ease;
+  }
+  .toolbar button:hover{
+    border-color:var(--orange2);
+    color:var(--orange2);
   }
   .toolbar button:hover{background:#f7f8fa;}
   .offline-pill{
@@ -420,9 +495,9 @@
     display:flex;
     align-items:center;
     justify-content:space-between;
-    padding:12px 14px;
+    padding:13px 15px;
     border:1px solid var(--border);
-    border-radius:10px;
+    border-radius:14px;
     margin-bottom:8px;
     background:#fafbfc;
     cursor:pointer;
@@ -486,6 +561,141 @@
     opacity:1;
     transform:translateX(-50%) translateY(0);
   }
+  .date-picker-btn{
+    width:100%;
+    padding:11px 14px;
+    border:1.5px solid var(--border);
+    border-radius:12px;
+    font-size:0.95rem;
+    background:#fbfcfd;
+    text-align:left;
+    cursor:pointer;
+    margin-bottom:12px;
+    color:var(--text);
+    font-family:inherit;
+  }
+  .date-picker-btn:active{border-color:var(--orange2);}
+  .date-picker-panel{
+    position:absolute;
+    top:100%;
+    left:0;
+    right:0;
+    background:#fff;
+    border:1px solid var(--border);
+    border-radius:16px;
+    box-shadow:0 10px 28px rgba(11,35,52,0.18);
+    padding:14px;
+    z-index:50;
+    margin-top:-6px;
+  }
+  .dp-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:10px;
+  }
+  .dp-header button{
+    width:32px;
+    height:32px;
+    border-radius:50%;
+    border:none;
+    background:#f3f6f9;
+    font-size:1.1rem;
+    cursor:pointer;
+    color:var(--navy);
+  }
+  .dp-month-label{
+    font-weight:700;
+    color:var(--navy);
+    font-size:0.92rem;
+  }
+  .dp-weekdays{
+    display:grid;
+    grid-template-columns:repeat(7,1fr);
+    text-align:center;
+    font-size:0.7rem;
+    color:var(--muted);
+    margin-bottom:4px;
+  }
+  .dp-days{
+    display:grid;
+    grid-template-columns:repeat(7,1fr);
+    gap:2px;
+  }
+  .dp-day{
+    aspect-ratio:1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:10px;
+    font-size:0.85rem;
+    cursor:pointer;
+    border:none;
+    background:none;
+    color:var(--text);
+  }
+  .dp-day:hover{background:#f3f6f9;}
+  .dp-day.dp-today{font-weight:700; color:var(--orange2);}
+  .dp-day.dp-selected{background:linear-gradient(135deg,var(--orange2),var(--orange)); color:#fff; font-weight:700;}
+  .dp-day.dp-empty{cursor:default;}
+  .dp-today-btn{
+    width:100%;
+    margin-top:10px;
+    padding:9px;
+    border-radius:10px;
+    border:1.5px solid var(--border);
+    background:#fff;
+    font-size:0.82rem;
+    font-weight:600;
+    color:var(--navy2);
+    cursor:pointer;
+  }
+  .tp-columns{
+    display:flex;
+    gap:10px;
+  }
+  .tp-col{flex:1;}
+  .tp-col-label{
+    text-align:center;
+    font-size:0.72rem;
+    color:var(--muted);
+    font-weight:700;
+    margin-bottom:6px;
+  }
+  .tp-scroll{
+    max-height:180px;
+    overflow-y:auto;
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:4px;
+  }
+  .tp-item{
+    padding:9px 0;
+    text-align:center;
+    border-radius:8px;
+    font-size:0.9rem;
+    cursor:pointer;
+    border:none;
+    background:none;
+    color:var(--text);
+  }
+  .tp-item:hover{background:#f3f6f9;}
+  .tp-item.tp-selected{
+    background:linear-gradient(135deg,var(--orange2),var(--orange));
+    color:#fff;
+    font-weight:700;
+  }
+  .now-btn-vivid{
+    background:linear-gradient(135deg,var(--orange2),var(--orange)) !important;
+    color:#fff !important;
+    border:none !important;
+    box-shadow:0 4px 14px rgba(224,142,43,0.4);
+    font-weight:800 !important;
+  }
+  .now-btn-vivid:active{transform:scale(0.97);}
   .hidden{display:none !important;}
   .filter-select{margin-bottom:14px;}
   .confirm-banner{
@@ -510,6 +720,8 @@
 </style>
 </head>
 <body>
+
+<div class="hazard-strip"></div>
 
 <header style="position:relative;">
   <h1>🦺 Leader Safety Walk Checklist <span id="admin-gear" style="cursor:pointer; font-size:0.9rem; opacity:0.35; float:right;" title="ตั้งค่าแอดมิน">⚙</span></h1>
@@ -536,13 +748,40 @@
     <div class="card">
       <h2>ข้อมูลการเดินตรวจ</h2>
       <div class="form-row">
-        <div>
+        <div style="position:relative;">
           <label>วันที่ (Date)</label>
-          <input type="date" id="f-date">
+          <button type="button" id="f-date-btn" class="date-picker-btn">📅 <span id="f-date-label">เลือกวันที่</span></button>
+          <input type="hidden" id="f-date">
+          <div id="date-picker-panel" class="date-picker-panel hidden">
+            <div class="dp-header">
+              <button type="button" id="dp-prev">‹</button>
+              <div id="dp-month-label" class="dp-month-label"></div>
+              <button type="button" id="dp-next">›</button>
+            </div>
+            <div class="dp-weekdays">
+              <span>อา</span><span>จ</span><span>อ</span><span>พ</span><span>พฤ</span><span>ศ</span><span>ส</span>
+            </div>
+            <div id="dp-days" class="dp-days"></div>
+            <button type="button" id="dp-today" class="dp-today-btn">วันนี้</button>
+          </div>
         </div>
-        <div>
+        <div style="position:relative;">
           <label>เวลา (Time)</label>
-          <input type="text" id="f-time" placeholder="เช่น 09:15">
+          <button type="button" id="f-time-btn" class="date-picker-btn">🕐 <span id="f-time-label">เลือกเวลา</span></button>
+          <input type="hidden" id="f-time">
+          <div id="time-picker-panel" class="date-picker-panel hidden">
+            <div class="tp-columns">
+              <div class="tp-col">
+                <div class="tp-col-label">ชั่วโมง</div>
+                <div id="tp-hours" class="tp-scroll"></div>
+              </div>
+              <div class="tp-col">
+                <div class="tp-col-label">นาที</div>
+                <div id="tp-minutes" class="tp-scroll"></div>
+              </div>
+            </div>
+            <button type="button" id="tp-now" class="dp-today-btn now-btn-vivid">🕐 ตอนนี้เลย</button>
+          </div>
         </div>
       </div>
       <div class="form-row">
@@ -826,6 +1065,24 @@
   });
 
   // ---------- Build checklist form ----------
+  const BEHAVIOR_ICONS = {
+    ppe: "🦺",
+    seatbelt: "🚜",
+    horn: "🔊",
+    speed: "🚧",
+    junction: "🚦",
+    phone: "📵",
+    watch_vehicles_walking: "🚶",
+    roller_shutter: "🚪"
+  };
+  function getIconFor(key){
+    return BEHAVIOR_ICONS[key] || "🛡️";
+  }
+  function getIconForName(name){
+    const found = DEFAULT_BEHAVIORS.find(b=>b.name === name);
+    return found ? getIconFor(found.key) : "🛡️";
+  }
+
   const behaviorListEl = document.getElementById("behavior-list");
   function buildBehaviorForm(){
     behaviorListEl.innerHTML = "";
@@ -837,6 +1094,7 @@
       item.id = "item-" + b.key;
       item.innerHTML = `
         <div class="behavior-top">
+          <div class="icon-badge">${getIconFor(b.key)}</div>
           <div class="behavior-name">${b.name}</div>
         </div>
         <div class="btn-group">
@@ -885,13 +1143,177 @@
     document.getElementById("submit-btn").disabled = !allSet;
   }
 
+  // ---------- Custom Date Picker (instant tap, no confirm step) ----------
+  const dateBtn = document.getElementById("f-date-btn");
+  const dateLabel = document.getElementById("f-date-label");
+  const dateHidden = document.getElementById("f-date");
+  const datePanel = document.getElementById("date-picker-panel");
+  const dpMonthLabel = document.getElementById("dp-month-label");
+  const dpDaysEl = document.getElementById("dp-days");
+
+  function toISODate(y,m,d){
+    return y + "-" + String(m+1).padStart(2,"0") + "-" + String(d).padStart(2,"0");
+  }
+  function todayISO(){
+    const n = new Date();
+    return toISODate(n.getFullYear(), n.getMonth(), n.getDate());
+  }
+  function formatDateLabel(iso){
+    if(!iso) return "เลือกวันที่";
+    const [y,m,d] = iso.split("-").map(Number);
+    return d + " " + (THAI_MONTHS[m-1] || m) + " " + y;
+  }
+
+  let dpViewYear, dpViewMonth;
+
+  function setSelectedDate(iso){
+    dateHidden.value = iso;
+    dateLabel.textContent = formatDateLabel(iso);
+  }
+
+  function renderCalendar(){
+    dpMonthLabel.textContent = (THAI_MONTHS[dpViewMonth] || "") + " " + dpViewYear;
+    dpDaysEl.innerHTML = "";
+    const firstDay = new Date(dpViewYear, dpViewMonth, 1).getDay();
+    const daysInMonth = new Date(dpViewYear, dpViewMonth+1, 0).getDate();
+    const selectedIso = dateHidden.value;
+    const todayIso = todayISO();
+
+    for(let i=0;i<firstDay;i++){
+      const empty = document.createElement("div");
+      empty.className = "dp-day dp-empty";
+      dpDaysEl.appendChild(empty);
+    }
+    for(let d=1; d<=daysInMonth; d++){
+      const iso = toISODate(dpViewYear, dpViewMonth, d);
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "dp-day";
+      if(iso === todayIso) btn.classList.add("dp-today");
+      if(iso === selectedIso) btn.classList.add("dp-selected");
+      btn.textContent = d;
+      btn.addEventListener("click", ()=>{
+        setSelectedDate(iso);
+        datePanel.classList.add("hidden");
+      });
+      dpDaysEl.appendChild(btn);
+    }
+  }
+
+  dateBtn.addEventListener("click", (e)=>{
+    e.stopPropagation();
+    const base = dateHidden.value ? dateHidden.value.split("-").map(Number) : null;
+    const now = new Date();
+    dpViewYear = base ? base[0] : now.getFullYear();
+    dpViewMonth = base ? base[1]-1 : now.getMonth();
+    renderCalendar();
+    datePanel.classList.toggle("hidden");
+  });
+
+  document.getElementById("dp-prev").addEventListener("click", (e)=>{
+    e.stopPropagation();
+    dpViewMonth--;
+    if(dpViewMonth < 0){ dpViewMonth = 11; dpViewYear--; }
+    renderCalendar();
+  });
+  document.getElementById("dp-next").addEventListener("click", (e)=>{
+    e.stopPropagation();
+    dpViewMonth++;
+    if(dpViewMonth > 11){ dpViewMonth = 0; dpViewYear++; }
+    renderCalendar();
+  });
+  document.getElementById("dp-today").addEventListener("click", (e)=>{
+    e.stopPropagation();
+    setSelectedDate(todayISO());
+    datePanel.classList.add("hidden");
+  });
+  document.addEventListener("click", (e)=>{
+    if(!datePanel.contains(e.target) && e.target !== dateBtn){
+      datePanel.classList.add("hidden");
+    }
+  });
+  datePanel.addEventListener("click", (e)=> e.stopPropagation());
+
+  // ---------- Custom Time Picker (instant tap, no typing) ----------
+  const timeBtn = document.getElementById("f-time-btn");
+  const timeLabel = document.getElementById("f-time-label");
+  const timeHidden = document.getElementById("f-time");
+  const timePanel = document.getElementById("time-picker-panel");
+  const tpHoursEl = document.getElementById("tp-hours");
+  const tpMinutesEl = document.getElementById("tp-minutes");
+
+  let tpHour = null, tpMinute = null;
+
+  function pad2(n){ return String(n).padStart(2,"0"); }
+
+  function updateTimeLabelAndHidden(){
+    if(tpHour !== null && tpMinute !== null){
+      const val = pad2(tpHour) + ":" + pad2(tpMinute);
+      timeHidden.value = val;
+      timeLabel.textContent = val;
+    }
+  }
+
+  function renderTimeColumns(){
+    tpHoursEl.innerHTML = "";
+    for(let h=0; h<24; h++){
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "tp-item" + (h === tpHour ? " tp-selected" : "");
+      btn.textContent = pad2(h);
+      btn.addEventListener("click", ()=>{
+        tpHour = h;
+        updateTimeLabelAndHidden();
+        renderTimeColumns();
+        if(tpMinute !== null) timePanel.classList.add("hidden");
+      });
+      tpHoursEl.appendChild(btn);
+    }
+    tpMinutesEl.innerHTML = "";
+    for(let m=0; m<60; m++){
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "tp-item" + (m === tpMinute ? " tp-selected" : "");
+      btn.textContent = pad2(m);
+      btn.addEventListener("click", ()=>{
+        tpMinute = m;
+        updateTimeLabelAndHidden();
+        renderTimeColumns();
+        if(tpHour !== null) timePanel.classList.add("hidden");
+      });
+      tpMinutesEl.appendChild(btn);
+    }
+  }
+
+  timeBtn.addEventListener("click", (e)=>{
+    e.stopPropagation();
+    renderTimeColumns();
+    timePanel.classList.toggle("hidden");
+  });
+  document.getElementById("tp-now").addEventListener("click", (e)=>{
+    e.stopPropagation();
+    const n = new Date();
+    tpHour = n.getHours();
+    tpMinute = n.getMinutes();
+    updateTimeLabelAndHidden();
+    timePanel.classList.add("hidden");
+  });
+  document.addEventListener("click", (e)=>{
+    if(!timePanel.contains(e.target) && e.target !== timeBtn){
+      timePanel.classList.add("hidden");
+    }
+  });
+  timePanel.addEventListener("click", (e)=> e.stopPropagation());
+
   function resetForm(){
     buildBehaviorForm();
     checkSubmitEnabled();
     document.getElementById("f-notes").value = "";
-    document.getElementById("f-time").value = "";
-    const now = new Date();
-    document.getElementById("f-date").value = now.toISOString().slice(0,10);
+    timeHidden.value = "";
+    timeLabel.textContent = "เลือกเวลา";
+    tpHour = null;
+    tpMinute = null;
+    setSelectedDate(todayISO());
   }
 
   // ---------- Submit ----------
@@ -1080,7 +1502,7 @@
       }
 
       row.innerHTML = `
-        <div class="bar-label">${name.split(" (")[0]}</div>
+        <div class="bar-label">${getIconForName(name)} ${name.split(" (")[0]}</div>
         <div class="bar-track"><div class="bar-fill" style="width:${pct||0}%; background:${barColor}"></div></div>
         <div class="bar-pct">${pctDisplay}</div>
         <div class="bar-target"><span class="target-badge ${badgeClass}">${badgeIcon} ${targetStr}</span></div>
