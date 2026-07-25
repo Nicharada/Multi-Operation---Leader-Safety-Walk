@@ -270,7 +270,7 @@
     flex-shrink:0;
   }
   .bar-target{
-    width:78px;
+    width:110px;
     text-align:right;
     font-size:0.72rem;
     font-weight:600;
@@ -278,6 +278,40 @@
     flex-shrink:0;
     white-space:nowrap;
   }
+  .bars-header{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-bottom:10px;
+    padding-bottom:8px;
+    border-bottom:2px solid var(--border);
+  }
+  .bars-header .bar-label{
+    font-size:0.72rem;
+    text-transform:uppercase;
+    letter-spacing:0.4px;
+    color:var(--muted);
+    font-weight:700;
+  }
+  .bars-header .bar-track-spacer{flex:1;}
+  .bars-header .bar-pct, .bars-header .bar-target{
+    font-size:0.68rem;
+    text-transform:uppercase;
+    letter-spacing:0.4px;
+    color:var(--muted);
+    font-weight:700;
+  }
+  .target-badge{
+    display:inline-block;
+    padding:3px 9px;
+    border-radius:20px;
+    font-size:0.7rem;
+    font-weight:700;
+    white-space:nowrap;
+  }
+  .target-badge-pass{background:#e3f7e9; color:var(--green);}
+  .target-badge-fail{background:#fde9e7; color:var(--red);}
+  .target-badge-neutral{background:#eef0f3; color:var(--muted);}
   .lowest-callout{
     background:#fff2dc;
     border:1px solid #f5d99a;
@@ -468,8 +502,10 @@
   }
   @media (max-width:420px){
     .stat-grid{grid-template-columns:1fr 1fr;}
-    .bar-label{width:88px; font-size:0.72rem;}
-    .bar-target{width:58px; font-size:0.64rem;}
+    .bar-label{width:82px; font-size:0.7rem;}
+    .bar-target{width:82px; font-size:0.62rem;}
+    .target-badge{padding:2px 6px; font-size:0.62rem;}
+    .bars-header .bar-label, .bars-header .bar-pct, .bars-header .bar-target{font-size:0.6rem;}
   }
 </style>
 </head>
@@ -985,11 +1021,16 @@
     "Speed Limit": "100%",
     "Stop before using a mobile phone": "100%",
     "Standby During Roller Shutter Operation": "≥98%",
-    "Look in Direction of Travel when Driving Forklift": "100%"
+    "Look in Direction of Travel when Driving Forklift": "100%",
+    "Look in Direction of Travel": "100%"
   };
   function getTargetFor(name){
     const shortName = name.split(" (")[0];
     return KPI_TARGETS[shortName] || "ยังไม่กำหนด";
+  }
+  function parseTargetNum(targetStr){
+    const m = targetStr.match(/(\d+)/);
+    return m ? parseInt(m[1],10) : null;
   }
 
   function renderBarsAndLowest(behaviorMap){
@@ -1001,6 +1042,16 @@
       document.getElementById("lowest-callout-box").innerHTML = "";
       return;
     }
+    const header = document.createElement("div");
+    header.className = "bars-header";
+    header.innerHTML = `
+      <div class="bar-label">หัวข้อตรวจ</div>
+      <div class="bar-track-spacer"></div>
+      <div class="bar-pct">ผลจริง</div>
+      <div class="bar-target">KPI Target</div>
+    `;
+    barsContainer.appendChild(header);
+
     let lowestName = null, lowestPct = 101;
     names.forEach(name=>{
       const t = behaviorMap[name];
@@ -1009,11 +1060,21 @@
       row.className = "bar-row";
       const pctDisplay = pct === null ? "N/A" : pct + "%";
       const barColor = pct === null ? "#d1d5db" : (pct >= 95 ? "linear-gradient(90deg,#2e9e5b,#57c583)" : pct >= 80 ? "linear-gradient(90deg,#e08e2b,#f2b94d)" : "linear-gradient(90deg,#d9483d,#e97a70)");
+
+      const targetStr = getTargetFor(name);
+      const targetNum = parseTargetNum(targetStr);
+      let badgeClass = "target-badge-neutral";
+      let badgeIcon = "🎯";
+      if(pct !== null && targetNum !== null){
+        if(pct >= targetNum){ badgeClass = "target-badge-pass"; badgeIcon = "✅"; }
+        else { badgeClass = "target-badge-fail"; badgeIcon = "⚠️"; }
+      }
+
       row.innerHTML = `
         <div class="bar-label">${name.split(" (")[0]}</div>
         <div class="bar-track"><div class="bar-fill" style="width:${pct||0}%; background:${barColor}"></div></div>
         <div class="bar-pct">${pctDisplay}</div>
-        <div class="bar-target" title="เป้าหมายตาม KPI">🎯 ${getTargetFor(name)}</div>
+        <div class="bar-target"><span class="target-badge ${badgeClass}">${badgeIcon} ${targetStr}</span></div>
       `;
       barsContainer.appendChild(row);
       if(pct !== null && pct < lowestPct){
