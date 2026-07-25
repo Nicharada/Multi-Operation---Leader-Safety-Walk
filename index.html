@@ -645,10 +645,9 @@
   const BEHAVIORS_KEY = "ych_safety_walk_behaviors_v1";
 
   function loadBehaviors(){
-    try{
-      const raw = localStorage.getItem(BEHAVIORS_KEY);
-      return raw ? JSON.parse(raw) : DEFAULT_BEHAVIORS.slice();
-    }catch(e){ return DEFAULT_BEHAVIORS.slice(); }
+    // ใช้รายการหัวข้อจากโค้ดเป็นหลักเสมอ (ไม่ยึดตามที่เคยแคชไว้ในเครื่องเก่า)
+    // ป้องกันปัญหาบางเครื่องมีหัวข้อเวอร์ชันเก่าค้างอยู่แล้วไม่อัปเดตตาม
+    return DEFAULT_BEHAVIORS.slice();
   }
   function saveBehaviors(list){
     localStorage.setItem(BEHAVIORS_KEY, JSON.stringify(list));
@@ -1043,7 +1042,7 @@
   function renderBarsAndLowest(behaviorMap){
     const barsContainer = document.getElementById("bars-container");
     barsContainer.innerHTML = "";
-    const orderedNames = DEFAULT_BEHAVIORS.map(b=>b.name).filter(n => Object.prototype.hasOwnProperty.call(behaviorMap, n));
+    const orderedNames = DEFAULT_BEHAVIORS.map(b=>b.name);
     Object.keys(behaviorMap).forEach(n=>{ if(!orderedNames.includes(n)) orderedNames.push(n); });
     const names = orderedNames;
     if(names.length === 0){
@@ -1061,13 +1060,14 @@
     `;
     barsContainer.appendChild(header);
 
-    let lowestName = null, lowestPct = 101;
+    const lowestList = [];
     names.forEach(name=>{
-      const t = behaviorMap[name];
-      const pct = t.total > 0 ? Math.round((t.safe/t.total)*100) : null;
+      const t = behaviorMap[name] || {safe:0, total:0};
+      const pctRaw = t.total > 0 ? (t.safe/t.total)*100 : null;
+      const pct = pctRaw === null ? null : Math.round(pctRaw*100)/100;
       const row = document.createElement("div");
       row.className = "bar-row";
-      const pctDisplay = pct === null ? "N/A" : pct + "%";
+      const pctDisplay = pct === null ? "N/A" : pct.toFixed(2) + "%";
       const barColor = pct === null ? "#d1d5db" : (pct >= 95 ? "linear-gradient(90deg,#2e9e5b,#57c583)" : pct >= 80 ? "linear-gradient(90deg,#e08e2b,#f2b94d)" : "linear-gradient(90deg,#d9483d,#e97a70)");
 
       const targetStr = getTargetFor(name);
@@ -1086,15 +1086,21 @@
         <div class="bar-target"><span class="target-badge ${badgeClass}">${badgeIcon} ${targetStr}</span></div>
       `;
       barsContainer.appendChild(row);
-      if(pct !== null && pct < lowestPct){
-        lowestPct = pct;
-        lowestName = name;
+      if(pct !== null){
+        lowestList.push({name, pct});
       }
     });
+    lowestList.sort((a,b)=>a.pct - b.pct);
+    const top3 = lowestList.slice(0,3);
     const calloutBox = document.getElementById("lowest-callout-box");
-    calloutBox.innerHTML = lowestName
-      ? `<div class="lowest-callout">🎯 หัวข้อที่คะแนนต่ำสุดคือ <b>${lowestName.split(" (")[0]}</b> (${lowestPct}%) — แนะนำให้ใช้เป็นแคมเปญ/หัวข้อ Toolbox Talk ถัดไป</div>`
-      : "";
+    if(top3.length > 0){
+      const itemsHtml = top3.map((item,i)=>
+        `<b>${i+1}. ${item.name.split(" (")[0]}</b> (${item.pct.toFixed(2)}%)`
+      ).join(" · ");
+      calloutBox.innerHTML = `<div class="lowest-callout">🎯 3 หัวข้อที่คะแนนต่ำสุด: ${itemsHtml} — แนะนำให้ใช้เป็นแคมเปญ/หัวข้อ Toolbox Talk ถัดไป</div>`;
+    } else {
+      calloutBox.innerHTML = "";
+    }
   }
 
   let lastAggregation = null;
@@ -1117,7 +1123,7 @@
 
     months.forEach(m=>{
       const d = monthMap[m];
-      const pct = d.total > 0 ? Math.round((d.safe/d.total)*100) : 0;
+      const pct = d.total > 0 ? Math.round((d.safe/d.total)*10000)/100 : 0;
       const color = pct >= 95 ? "var(--green)" : pct >= 80 ? "var(--orange2)" : "var(--red)";
       const row = document.createElement("div");
       row.className = "month-row" + (selectedMonth === m ? " selected" : "");
@@ -1125,7 +1131,7 @@
       row.innerHTML = `
         <div class="month-name">${formatThaiMonth(m)}</div>
         <div class="month-mid">${d.walkKeys.size} ครั้งเดินตรวจ</div>
-        <div class="month-pct" style="color:${color};">${pct}%</div>
+        <div class="month-pct" style="color:${color};">${pct.toFixed(2)}%</div>
       `;
       row.addEventListener("click", ()=>{
         selectedMonth = (selectedMonth === m) ? null : m;
@@ -1166,7 +1172,7 @@
     const {monthMap, overallSafe, overallTotal, totalWalks} = agg;
     document.getElementById("stat-total-walks").textContent = totalWalks;
     document.getElementById("stat-safe-rate").textContent = overallTotal > 0
-      ? Math.round((overallSafe/overallTotal)*100) + "%"
+      ? (Math.round((overallSafe/overallTotal)*10000)/100).toFixed(2) + "%"
       : "–";
     renderMonthlySummary(monthMap);
     applyMonthSelection();
@@ -1187,7 +1193,7 @@
     });
     document.getElementById("stat-total-walks").textContent = records.length;
     document.getElementById("stat-safe-rate").textContent = overallTotal > 0
-      ? Math.round((overallSafe/overallTotal)*100) + "%"
+      ? (Math.round((overallSafe/overallTotal)*10000)/100).toFixed(2) + "%"
       : "–";
     document.getElementById("monthly-summary-container").innerHTML =
       `<div class="empty-state">ยังไม่ได้เชื่อมต่อ Google Sheet จึงยังสรุปรายเดือนแบบรวมทุกคนไม่ได้</div>`;
@@ -1220,7 +1226,7 @@
     records.forEach(r=>{
       const safeCount = r.behaviors.filter(b=>b.status==="safe").length;
       const unsafeCount = r.behaviors.filter(b=>b.status==="unsafe").length;
-      const pct = Math.round((safeCount/(safeCount+unsafeCount))*100) || 0;
+      const pct = Math.round((safeCount/(safeCount+unsafeCount))*10000)/100 || 0;
       const badgeClass = pct >= 95 ? "badge-green" : pct >= 80 ? "badge-orange" : "badge-red";
 
       const item = document.createElement("div");
@@ -1231,7 +1237,7 @@
             <span class="name">${r.date} ${r.time ? "· "+r.time : ""}</span><br>
             <span style="color:var(--muted); font-size:0.78rem;">${r.inspector} · ${r.area}</span>
           </div>
-          <span class="badge ${badgeClass}">${pct}% Safe</span>
+          <span class="badge ${badgeClass}">${pct.toFixed(2)}% Safe</span>
         </div>
         <div class="history-detail">
           ${r.behaviors.map(b=>`
