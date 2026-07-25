@@ -269,6 +269,15 @@
     font-weight:700;
     flex-shrink:0;
   }
+  .bar-target{
+    width:78px;
+    text-align:right;
+    font-size:0.72rem;
+    font-weight:600;
+    color:var(--navy2);
+    flex-shrink:0;
+    white-space:nowrap;
+  }
   .lowest-callout{
     background:#fff2dc;
     border:1px solid #f5d99a;
@@ -459,7 +468,8 @@
   }
   @media (max-width:420px){
     .stat-grid{grid-template-columns:1fr 1fr;}
-    .bar-label{width:110px; font-size:0.74rem;}
+    .bar-label{width:88px; font-size:0.72rem;}
+    .bar-target{width:58px; font-size:0.64rem;}
   }
 </style>
 </head>
@@ -594,7 +604,7 @@
     {key:"speed", name:"Speed Limit (ปฏิบัติตามความเร็วที่กำหนด)"},
     {key:"phone", name:"Stop before using a mobile phone (หยุดก่อนใช้โทรศัพท์มือถือ)"},
     {key:"roller_shutter", name:"Standby During Roller Shutter Operation (ยืนเฝ้าระหว่างเปิด-ปิดประตูม้วน)"},
-    {key:"look_direction", name:"Look in Direction of Travel (มองทิศทางการเคลื่อนที่ตลอดเวลา)"}
+    {key:"look_direction", name:"Look in Direction of Travel when Driving Forklift (มองทิศทางการเคลื่อนที่ตลอดเวลาขณะขับรถ Forklift)"}
   ];
   const BEHAVIORS_KEY = "ych_safety_walk_behaviors_v1";
 
@@ -914,19 +924,18 @@
     const url = getWebAppUrl();
     const note = document.getElementById("dashboard-sync-note");
     if(!url){
-      note.textContent = "ยังไม่ได้เชื่อมต่อ Google Sheet — แสดงเฉพาะข้อมูลในเครื่องนี้";
+      note.textContent = "";
       return Promise.resolve(null);
     }
-    note.textContent = "กำลังโหลดข้อมูลจาก Google Sheet...";
     return fetch(url)
       .then(r=>r.json())
       .then(data=>{
         sheetRecords = data.records || [];
-        note.textContent = "ข้อมูลรวมทุกคนจาก Google Sheet · อัปเดตล่าสุด " + new Date().toLocaleTimeString('th-TH');
+        note.textContent = "";
         return sheetRecords;
       })
       .catch(()=>{
-        note.textContent = "ไม่สามารถโหลดข้อมูลจาก Google Sheet ได้ตอนนี้ — แสดงข้อมูลในเครื่องนี้แทน";
+        note.textContent = "";
         return null;
       });
   }
@@ -968,6 +977,21 @@
     return {monthMap, behaviorMap, monthBehaviorMap, overallSafe, overallTotal, totalWalks: walkKeysOverall.size};
   }
 
+  const KPI_TARGETS = {
+    "Wear PPE": "100%",
+    "Seat Belt": "100%",
+    "Stop at Junction": "≥98%",
+    "Horn at Blind Corner": "100%",
+    "Speed Limit": "100%",
+    "Stop before using a mobile phone": "100%",
+    "Standby During Roller Shutter Operation": "≥98%",
+    "Look in Direction of Travel when Driving Forklift": "100%"
+  };
+  function getTargetFor(name){
+    const shortName = name.split(" (")[0];
+    return KPI_TARGETS[shortName] || "ยังไม่กำหนด";
+  }
+
   function renderBarsAndLowest(behaviorMap){
     const barsContainer = document.getElementById("bars-container");
     barsContainer.innerHTML = "";
@@ -989,6 +1013,7 @@
         <div class="bar-label">${name.split(" (")[0]}</div>
         <div class="bar-track"><div class="bar-fill" style="width:${pct||0}%; background:${barColor}"></div></div>
         <div class="bar-pct">${pctDisplay}</div>
+        <div class="bar-target" title="เป้าหมายตาม KPI">🎯 ${getTargetFor(name)}</div>
       `;
       barsContainer.appendChild(row);
       if(pct !== null && pct < lowestPct){
