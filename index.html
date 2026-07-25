@@ -1508,7 +1508,7 @@
         <div class="bar-target"><span class="target-badge ${badgeClass}">${badgeIcon} ${targetStr}</span></div>
       `;
       barsContainer.appendChild(row);
-      if(pct !== null){
+      if(pct !== null && targetNum !== null && pct < targetNum){
         lowestList.push({name, pct});
       }
     });
@@ -1519,9 +1519,9 @@
       const itemsHtml = top3.map((item,i)=>
         `<b>${i+1}. ${item.name.split(" (")[0]}</b> (${item.pct.toFixed(2)}%)`
       ).join(" · ");
-      calloutBox.innerHTML = `<div class="lowest-callout">🎯 3 หัวข้อที่คะแนนต่ำสุด: ${itemsHtml} — แนะนำให้ใช้เป็นแคมเปญ/หัวข้อ Toolbox Talk ถัดไป</div>`;
+      calloutBox.innerHTML = `<div class="lowest-callout">🎯 หัวข้อที่ยังต่ำกว่า Target (สูงสุด 3 อันดับ): ${itemsHtml} — แนะนำให้ใช้เป็นแคมเปญ/หัวข้อ Toolbox Talk ถัดไป</div>`;
     } else {
-      calloutBox.innerHTML = "";
+      calloutBox.innerHTML = `<div class="lowest-callout">🎉 ทุกหัวข้อผ่านเป้าหมาย (Target) แล้ว!</div>`;
     }
   }
 
