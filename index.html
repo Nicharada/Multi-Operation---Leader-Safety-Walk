@@ -1043,7 +1043,9 @@
   function renderBarsAndLowest(behaviorMap){
     const barsContainer = document.getElementById("bars-container");
     barsContainer.innerHTML = "";
-    const names = Object.keys(behaviorMap);
+    const orderedNames = DEFAULT_BEHAVIORS.map(b=>b.name).filter(n => Object.prototype.hasOwnProperty.call(behaviorMap, n));
+    Object.keys(behaviorMap).forEach(n=>{ if(!orderedNames.includes(n)) orderedNames.push(n); });
+    const names = orderedNames;
     if(names.length === 0){
       barsContainer.innerHTML = `<div class="empty-state">ยังไม่มีข้อมูล</div>`;
       document.getElementById("lowest-callout-box").innerHTML = "";
