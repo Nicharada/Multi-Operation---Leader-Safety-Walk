@@ -635,12 +635,12 @@
   const DEFAULT_BEHAVIORS = [
     {key:"ppe", name:"Wear PPE (สวมใส่อุปกรณ์ป้องกันภัยส่วนบุคคล)"},
     {key:"seatbelt", name:"Seat Belt (คาดเข็มขัดนิรภัย)"},
-    {key:"junction", name:"Stop at Junction (หยุดที่ทางแยก)"},
     {key:"horn", name:"Horn at Blind Corner (บีบแตรที่มุมอับ)"},
     {key:"speed", name:"Speed Limit (ปฏิบัติตามความเร็วที่กำหนด)"},
+    {key:"junction", name:"Stop at Junction (หยุดที่ทางแยก)"},
     {key:"phone", name:"Stop before using a mobile phone (หยุดก่อนใช้โทรศัพท์มือถือ)"},
-    {key:"roller_shutter", name:"Standby During Roller Shutter Operation (ยืนเฝ้าระหว่างเปิด-ปิดประตูม้วน)"},
-    {key:"look_direction", name:"Look in Direction of Travel when Driving Forklift (มองทิศทางการเคลื่อนที่ตลอดเวลาขณะขับรถ Forklift)"}
+    {key:"watch_vehicles_walking", name:"Watch for Vehicles While Walking (มองรถก่อนเดิน ระวังการชนขณะเดินในคลังสินค้า)"},
+    {key:"roller_shutter", name:"Standby During Roller Shutter Operation (ยืนเฝ้าระหว่างเปิด-ปิดประตูม้วน)"}
   ];
   const BEHAVIORS_KEY = "ych_safety_walk_behaviors_v1";
 
@@ -976,20 +976,28 @@
       });
   }
 
+  function getValidShortNames(){
+    return new Set(DEFAULT_BEHAVIORS.map(b => b.name.split(" (")[0]));
+  }
+
   function aggregateSheetData(){
     const monthMap = {};
     const behaviorMap = {};
     const monthBehaviorMap = {};
     let overallSafe = 0, overallTotal = 0;
     const walkKeysOverall = new Set();
+    const validShortNames = getValidShortNames();
 
     sheetRecords.forEach(row=>{
       const status = (row.Status || "").toString().toLowerCase().trim();
       if(status !== "safe" && status !== "unsafe") return;
+      const bname = row.Behavior || "ไม่ระบุ";
+      const shortName = bname.toString().split(" (")[0];
+      if(!validShortNames.has(shortName)) return; // ตัดหัวข้อเก่า/ไม่ตรงกับปัจจุบันออก
+
       const dateStr = (row.Date || "").toString().slice(0,10);
       const month = dateStr.slice(0,7) || "ไม่ระบุ";
       const walkKey = [row.Date, row.Time, row.Inspector, row.Area].join("|");
-      const bname = row.Behavior || "ไม่ระบุ";
 
       if(!monthMap[month]) monthMap[month] = {walkKeys: new Set(), safe:0, total:0};
       monthMap[month].walkKeys.add(walkKey);
@@ -1016,13 +1024,12 @@
   const KPI_TARGETS = {
     "Wear PPE": "100%",
     "Seat Belt": "100%",
-    "Stop at Junction": "≥98%",
     "Horn at Blind Corner": "100%",
     "Speed Limit": "100%",
+    "Stop at Junction": "≥98%",
     "Stop before using a mobile phone": "100%",
-    "Standby During Roller Shutter Operation": "≥98%",
-    "Look in Direction of Travel when Driving Forklift": "100%",
-    "Look in Direction of Travel": "100%"
+    "Watch for Vehicles While Walking": "100%",
+    "Standby During Roller Shutter Operation": "≥98%"
   };
   function getTargetFor(name){
     const shortName = name.split(" (")[0];
